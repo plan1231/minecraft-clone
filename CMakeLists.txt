@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 # specify name of the project and specify which language to compile for
-project(opengl-starter LANGUAGES CXX)
+project(minecraft-clone LANGUAGES CXX)
 
 #-----------------------------------------------------------------------------#
 # define the asset path in c++
@@ -56,13 +56,44 @@ CPMAddPackage(
   VERSION 1.0
 )
 
+CPMAddPackage(
+  NAME stb
+  GITHUB_REPOSITORY nothings/stb
+  GIT_TAG 5736b15
+)
+
+
+if(stb_ADDED)
+	add_library(stb INTERFACE)
+	target_include_directories(stb SYSTEM INTERFACE ${stb_SOURCE_DIR})
+endif()
+
+
+CPMAddPackage(
+		NAME EnTT
+		VERSION 3.12.2
+		GITHUB_REPOSITORY skypjack/entt
+		# EnTT's CMakeLists screws with configuration options
+		DOWNLOAD_ONLY True
+)
+
+if(EnTT_ADDED)
+	add_library(EnTT INTERFACE)
+	target_include_directories(EnTT SYSTEM INTERFACE ${EnTT_SOURCE_DIR}/src)
+endif()
+
+
 #-----------------------------------------------------------------------------#
 # list all files that will either be used for compilation or that should show 
 # up in the ide of your choice
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES} ${SHADER_FILES})
+target_compile_features(${PROJECT_NAME}
+	PRIVATE
+	cxx_std_17
+)
 GroupSourcesByFolder(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC src)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 11) # use c++11
 
 # specify libraries to link with after compilation
-target_link_libraries(${PROJECT_NAME} PRIVATE glad glfw glm)
+target_link_libraries(${PROJECT_NAME} PRIVATE glad glfw glm stb EnTT)
