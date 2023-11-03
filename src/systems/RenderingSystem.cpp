@@ -10,7 +10,7 @@
 void RenderingSystem::update(float dt) {
     shader->use();
     registry.view<MeshComponent, TransformationComponent>().each([&](const MeshComponent& meshComponent, const TransformationComponent& transform) {
-        shader->setMatrix4("model", transform.transform);
+        shader->setMatrix4("modelMatrix", transform.transform);
         meshComponent.mesh.render(shader);
     });
 }

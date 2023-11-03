@@ -89,7 +89,7 @@ endif()
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES} ${SHADER_FILES})
 target_compile_features(${PROJECT_NAME}
 	PRIVATE
-	cxx_std_17
+	cxx_std_20
 )
 GroupSourcesByFolder(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC src)

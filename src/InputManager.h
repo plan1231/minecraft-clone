@@ -6,11 +6,16 @@
 #define MINECRAFT_CLONE_INPUTMANAGER_H
 #include <glad/glad.h> // include glad so it'll shut up about glfw3.h being included
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+
 class InputManager {
+
     GLFWwindow *window;
+
 public:
     InputManager(GLFWwindow *window);
     int getKey(int key);
+    glm::dvec2 getCursorPos();
 };
 
 

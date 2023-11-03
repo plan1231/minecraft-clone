@@ -9,12 +9,18 @@
 #include <memory>
 #include "Game.h"
 #include "InputManager.h"
+
+
 class Application {
     std::unique_ptr<Game> game;
     std::unique_ptr<InputManager> inputManager;
 
     bool stopRequested = false;
     GLFWwindow *window = nullptr;
+
+    static void cursorPosCallback(GLFWwindow* window, double x, double y);
+
+
 public:
     void run();
     Application();

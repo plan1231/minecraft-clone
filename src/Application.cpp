@@ -18,6 +18,7 @@ Application::Application() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
+
     // glfw window creation
     // --------------------
     window = glfwCreateWindow(800, 600, "Minecraft Clone", NULL, NULL);
@@ -26,6 +27,12 @@ Application::Application() {
         glfwTerminate();
         exit(1);
     }
+
+    glfwSetWindowUserPointer(window, this);
+    // Disable cursor and use raw mouse motion, better for manipulating a 3d camera as per glfw docs
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+
     glfwMakeContextCurrent(window);
 
     // glad: load all OpenGL function pointers
@@ -36,6 +43,7 @@ Application::Application() {
     }
     inputManager = std::make_unique<InputManager>(window);
     game = std::make_unique<Game>(*inputManager);
+
 }
 
 void Application::run() {

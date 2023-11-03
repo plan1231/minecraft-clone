@@ -11,3 +11,9 @@ InputManager::InputManager(GLFWwindow *window): window(window) {
 int InputManager::getKey(int key) {
     return glfwGetKey(window, key);
 }
+
+glm::dvec2 InputManager::getCursorPos() {
+    glm::dvec2 retVal;
+    glfwGetCursorPos(window, &retVal.x, &retVal.y);
+    return retVal;
+}
