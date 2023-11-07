@@ -62,7 +62,7 @@ void Application::run() {
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-
+        lastTime = currentTime;
         stopRequested |= glfwWindowShouldClose(window);
 
     }

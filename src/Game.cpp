@@ -4,7 +4,7 @@
 
 #include "Game.h"
 #include "systems/RenderingSystem.h"
-#include "systems/CameraSystem.h"
+#include "systems/PlayerSystem.h"
 #include "systems/ChunkMeshSystem.h"
 
 #include "components/MeshComponent.h"
@@ -12,7 +12,7 @@
 #include "components/ChunkComponent.h"
 #include "rendering/Geometry.h"
 Game::Game(InputManager &inputManager): inputManager(inputManager) {
-    systems.push_back(new CameraSystem(registry, dispatcher, inputManager));
+    systems.push_back(new PlayerSystem(registry, dispatcher, inputManager));
     systems.push_back(new ChunkMeshSystem(registry, dispatcher, inputManager));
     systems.push_back(new RenderingSystem(registry, dispatcher, inputManager));
 //    entt::entity square = registry.create();

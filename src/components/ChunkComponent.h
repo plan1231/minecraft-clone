@@ -10,6 +10,6 @@ struct ChunkComponent {
     // lower corner
     glm::ivec3 position;
     bool sameType;
-    bool modified;
+    bool modified = true;
 };
 #endif //MINECRAFT_CLONE_CHUNKCOMPONENT_H

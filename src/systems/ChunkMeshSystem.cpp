@@ -94,6 +94,7 @@ static const glm::vec2 CUBE_UVS[] = {
 
 void ChunkMeshSystem::update(float dt) {
     registry.view<ChunkComponent, MeshComponent>().each([&](ChunkComponent &chunk, MeshComponent &mesh) {
+        if(!chunk.modified) return;
         std::vector<Vertex> vertices;
         std::vector<uint> indices;
         for (uint x = 0; x < CHUNK_LENGTH; x++) {
@@ -105,6 +106,7 @@ void ChunkMeshSystem::update(float dt) {
         }
         mesh.geometry->bufferData(reinterpret_cast<const char *>(vertices.data()), vertices.size() * sizeof(Vertex),
                                   indices, GL_STATIC_DRAW);
+        chunk.modified = false;
     });
 }
 
