@@ -50,6 +50,8 @@ void Application::run() {
     glfwSetTime(0);
     float lastTime = 0;
     while(!stopRequested) {
+        glEnable(GL_DEPTH_TEST);
+
         glClearColor(0.7f, 0.877f, 0.917f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

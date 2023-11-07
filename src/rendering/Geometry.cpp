@@ -37,11 +37,16 @@ void Geometry::draw() const {
 }
 
 void
-Geometry::bufferData(const std::vector<float> &vertices, const std::vector<unsigned int> indices, unsigned int usage) {
+Geometry::bufferData(const std::vector<float> &vertices, const std::vector<unsigned int> &indices, unsigned int usage) {
+    bufferData(reinterpret_cast<const char *>(vertices.data()), sizeof(float) * vertices.size(), indices, usage);
+}
+
+void Geometry::bufferData(const char *data, unsigned int bytes, const std::vector<unsigned int> &indices,
+                          unsigned int usage) {
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), usage);
+    glBufferData(GL_ARRAY_BUFFER, bytes, data, usage);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), usage);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

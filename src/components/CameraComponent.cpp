@@ -17,7 +17,7 @@ void CameraComponent::calculateVectors() {
     this->up = glm::normalize(glm::cross(right, front));
 }
 
-void CameraComponent::calculateMatrices(const TransformationComponent &transform) {
+void CameraComponent::calculateMatrices(const TransformComponent &transform) {
     projectionMatrix = glm::perspective(glm::radians(fov), width / height, near, far);
 
     calculateVectors();

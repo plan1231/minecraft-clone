@@ -4,14 +4,19 @@
 
 #ifndef MINECRAFT_CLONE_RENDERINGSYSTEM_H
 #define MINECRAFT_CLONE_RENDERINGSYSTEM_H
+
 #include "System.h"
 #include "events/CameraUpdateEvent.h"
 #include "rendering/Shader.h"
-class RenderingSystem: public System {
+
+class RenderingSystem : public System {
     ShaderPtr shader;
-    void onCameraUpdate(CameraUpdateEvent& event);
+
+    void onCameraUpdate(CameraUpdateEvent &event);
+
 public:
-    RenderingSystem(entt::registry& registry, entt::dispatcher& dispatch, InputManager& inputManager);
+    RenderingSystem(entt::registry &registry, entt::dispatcher &dispatch, InputManager &inputManager);
+
     void update(float dt) override;
 };
 

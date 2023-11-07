@@ -5,7 +5,7 @@
 #ifndef MINECRAFT_CLONE_CAMERACOMPONENT_H
 #define MINECRAFT_CLONE_CAMERACOMPONENT_H
 #include <glm/glm.hpp>
-#include "TransformationComponent.h"
+#include "TransformComponent.h"
 
 struct CameraComponent {
     glm::vec3 front, right, up;
@@ -19,7 +19,7 @@ struct CameraComponent {
     glm::mat4 projectionMatrix;
     glm::mat4 viewMatrix;
 
-    void calculateMatrices(const TransformationComponent& transform);
+    void calculateMatrices(const TransformComponent& transform);
 
     /**
      * @brief Calculate the up, front, right vectors

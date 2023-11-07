@@ -4,14 +4,14 @@
 
 #include "CameraSystem.h"
 #include "events/CameraUpdateEvent.h"
-#include "components/TransformationComponent.h"
+#include "components/TransformComponent.h"
 #include "components/CameraComponent.h"
 #include <iostream>
 #include <format>
 CameraSystem::CameraSystem(entt::registry &registry, entt::dispatcher &dispatcher, InputManager &inputManager) :
         System(registry, dispatcher, inputManager) {
     cameraEntity = registry.create();
-    TransformationComponent &t = registry.emplace<TransformationComponent>(cameraEntity, glm::vec3(0.0f, 0.0f, 0.0f),
+    TransformComponent &t = registry.emplace<TransformComponent>(cameraEntity, glm::vec3(0.0f, 0.0f, 0.0f),
                                                                            glm::quat(),
                                                                            glm::vec3(1.0f, 1.0f, 1.0f));
     registry.emplace<CameraComponent>(cameraEntity).calculateMatrices(t);
@@ -19,7 +19,7 @@ CameraSystem::CameraSystem(entt::registry &registry, entt::dispatcher &dispatche
 
 void CameraSystem::update(float dt) {
     CameraComponent &cameraComponent = registry.get<CameraComponent>(cameraEntity);
-    TransformationComponent &transformationComponent = registry.get<TransformationComponent>(cameraEntity);
+    TransformComponent &transformationComponent = registry.get<TransformComponent>(cameraEntity);
 
     static glm::dvec2 lastCursorPos = inputManager.getCursorPos();
     glm::dvec2 cursorPos = inputManager.getCursorPos();

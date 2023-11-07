@@ -1,0 +1,14 @@
+//
+// Created by Phil Lan on 2023-11-05.
+//
+
+#ifndef MINECRAFT_CLONE_CHUNKLOADINGSYSTEM_H
+#define MINECRAFT_CLONE_CHUNKLOADINGSYSTEM_H
+
+
+class ChunkLoadingSystem {
+
+};
+
+
+#endif //MINECRAFT_CLONE_CHUNKLOADINGSYSTEM_H

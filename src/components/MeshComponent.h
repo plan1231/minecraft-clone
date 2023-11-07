@@ -4,8 +4,13 @@
 
 #ifndef MINECRAFT_CLONE_MESHCOMPONENT_H
 #define MINECRAFT_CLONE_MESHCOMPONENT_H
-#include "rendering/Mesh.h"
+#include "rendering/Geometry.h"
+#include "rendering/Texture.h"
+#include "rendering/Shader.h"
+
 struct MeshComponent {
-    Mesh mesh;
+    Geometry* geometry;
+    Texture* texture;
+    void render(ShaderPtr& shaderPtr) const;
 };
-#endif //MINECRAFT_CLONE_MESH_H
+#endif //MINECRAFT_CLONE_MESHCOMPONENT_H
