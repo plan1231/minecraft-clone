@@ -7,14 +7,17 @@
 
 #include <entt/entt.hpp>
 #include "InputManager.h"
+#include "ChunkManager.h"
 
 class System {
 protected:
     entt::registry &registry;
     entt::dispatcher &dispatcher;
     InputManager &inputManager;
+    ChunkManager &chunkManager;
 public:
-    System(entt::registry &registry, entt::dispatcher &dispatcher, InputManager &inputManager);
+    System(entt::registry &registry, entt::dispatcher &dispatcher);
+
     virtual void update(float dt) = 0;
 };
 

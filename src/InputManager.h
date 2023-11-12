@@ -15,6 +15,7 @@ class InputManager {
 public:
     InputManager(GLFWwindow *window);
     int getKey(int key);
+    int getMouseButton(int mouseButton);
     glm::dvec2 getCursorPos();
 };
 

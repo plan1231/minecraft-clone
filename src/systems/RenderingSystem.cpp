@@ -15,8 +15,8 @@ void RenderingSystem::update(float dt) {
     });
 }
 
-RenderingSystem::RenderingSystem(entt::registry& registry, entt::dispatcher& dispatcher, InputManager& inputManager) :
-    System(registry, dispatcher, inputManager),
+RenderingSystem::RenderingSystem(entt::registry& registry, entt::dispatcher& dispatcher) :
+    System(registry, dispatcher),
     shader(new Shader(ASSETS_PATH"/shaders/chunk.vert.glsl", ASSETS_PATH"/shaders/chunk.frag.glsl")) {
     dispatcher.sink<CameraUpdateEvent>().connect<&RenderingSystem::onCameraUpdate>(*this);
 }

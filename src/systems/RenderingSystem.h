@@ -15,7 +15,7 @@ class RenderingSystem : public System {
     void onCameraUpdate(CameraUpdateEvent &event);
 
 public:
-    RenderingSystem(entt::registry &registry, entt::dispatcher &dispatch, InputManager &inputManager);
+    RenderingSystem(entt::registry &registry, entt::dispatcher &dispatch);
 
     void update(float dt) override;
 };

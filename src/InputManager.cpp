@@ -17,3 +17,7 @@ glm::dvec2 InputManager::getCursorPos() {
     glfwGetCursorPos(window, &retVal.x, &retVal.y);
     return retVal;
 }
+
+int InputManager::getMouseButton(int mouseButton) {
+    return glfwGetMouseButton(window, mouseButton);
+}

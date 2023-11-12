@@ -4,10 +4,10 @@
 
 #include "System.h"
 
-System::System(entt::registry &registry, entt::dispatcher &dispatcher, InputManager &inputManager) :
+System::System(entt::registry &registry, entt::dispatcher &dispatcher) :
         registry(registry),
         dispatcher(dispatcher),
-        inputManager(inputManager)
-{
+        chunkManager(entt::locator<ChunkManager>::value()),
+        inputManager(entt::locator<InputManager>::value()){
 
 }

@@ -12,7 +12,7 @@
 class ChunkMeshSystem : public System {
 public:
     void update(float dt) override;
-    ChunkMeshSystem(entt::registry &registry, entt::dispatcher &dispatcher, InputManager &inputManager);
+    ChunkMeshSystem(entt::registry &registry, entt::dispatcher &dispatcher);
 private:
     struct Vertex {
         int x, y, z;

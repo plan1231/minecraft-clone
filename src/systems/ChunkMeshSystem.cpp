@@ -100,6 +100,7 @@ void ChunkMeshSystem::update(float dt) {
         for (uint x = 0; x < CHUNK_LENGTH; x++) {
             for (uint y = 0; y < CHUNK_LENGTH; y++) {
                 for (int z = 0; z < CHUNK_LENGTH; z++) {
+                    if((*chunk.blockTypes)[x * CHUNK_LENGTH * CHUNK_LENGTH + y * CHUNK_LENGTH + z] == BlockType::AIR) continue;
                     emitBlock(vertices, indices, {x, y, z});
                 }
             }
@@ -137,7 +138,7 @@ void ChunkMeshSystem::emitFace(std::vector<Vertex> &vertices, std::vector<uint> 
     indices.insert(indices.end(), {offset, offset + 1, offset + 2, offset, offset + 2, offset + 3});
 }
 
-ChunkMeshSystem::ChunkMeshSystem(entt::registry &registry, entt::dispatcher &dispatcher, InputManager &inputManager)
-        : System(registry, dispatcher, inputManager) {
+ChunkMeshSystem::ChunkMeshSystem(entt::registry &registry, entt::dispatcher &dispatcher)
+        : System(registry, dispatcher) {
 
 }
