@@ -9,5 +9,9 @@ ChunkComponent::ChunkComponent(BlockType b) {
 }
 
 BlockType ChunkComponent::getBlock(const glm::ivec3 &localCoords) const {
-    return (*blockTypes)[localCoords.x * CHUNK_LENGTH * CHUNK_LENGTH + localCoords.y * CHUNK_LENGTH + localCoords.z];
+    return (*blockTypes)[localCoords.y * CHUNK_LENGTH * CHUNK_LENGTH + localCoords.x * CHUNK_LENGTH + localCoords.z];
+}
+
+void ChunkComponent::setBlock(const glm::ivec3& localCoords, BlockType blockType) {
+    (*blockTypes)[localCoords.y * CHUNK_LENGTH * CHUNK_LENGTH + localCoords.x * CHUNK_LENGTH + localCoords.z] = blockType;
 }

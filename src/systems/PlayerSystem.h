@@ -24,7 +24,7 @@ private:
 
     void placeBlock(CameraComponent &camera, TransformComponent &transform);
 
-    std::pair<float, glm::ivec3> chunkRayHit(const glm::ivec3 &chunkCoords, ChunkComponent &chunk, const glm::vec3&start, const glm::vec3 &dir);
+    std::pair<float, glm::ivec3> chunkRayHit(const glm::ivec2 &chunkCoords, ChunkComponent &chunk, const glm::vec3&start, const glm::vec3 &dir);
 };
 
 

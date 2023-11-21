@@ -6,8 +6,14 @@
 #define MINECRAFT_CLONE_UTIL_H
 #include <glm/glm.hpp>
 
-constexpr unsigned int manhattan(const glm::ivec3 &a, const glm::ivec3 &b) {
-    return std::abs(a.x - b.x) + std::abs(a.y - b.y) + std::abs(a.z - b.z);
+/**
+ * \brief Get the manhattan distance between two positions
+ * \param a position vector a
+ * \param b position vector b
+ * \return manhattan distance between a and b
+ */
+constexpr unsigned int manhattan(const glm::ivec2 &a, const glm::ivec2 &b) {
+    return std::abs(a.x - b.x) + std::abs(a.y - b.y);
 }
 
 /**
@@ -42,6 +48,11 @@ constexpr glm::ivec3 pmod(glm::ivec3 v, int m) {
     return res;
 }
 
+/**
+ * \brief Round down a vector of ints to vector of floats.
+ * \param
+ * \return
+ */
 constexpr glm::ivec3 floor(const glm::vec3 &v) {
     glm::ivec3 res;
 

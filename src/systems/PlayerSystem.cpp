@@ -12,7 +12,7 @@
 PlayerSystem::PlayerSystem(entt::registry &registry, entt::dispatcher &dispatcher) :
         System(registry, dispatcher) {
     playerEntity = registry.create();
-    TransformComponent &t = registry.emplace<TransformComponent>(playerEntity, glm::vec3(0.0f, 0.0f, 0.0f),
+    TransformComponent &t = registry.emplace<TransformComponent>(playerEntity, glm::vec3(0.0f, 105.0f, 0.0f),
                                                                  glm::quat(),
                                                                  glm::vec3(1.0f, 1.0f, 1.0f));
     registry.emplace<CameraComponent>(playerEntity).calculateMatrices(t);
@@ -64,7 +64,7 @@ void PlayerSystem::updateRotPos(float dt, CameraComponent &camera, TransformComp
 
     bool positionChanged = false;
     if (velocity != glm::vec3{}) {
-        transform.position += glm::normalize(velocity) * dt * 3.0f;
+        transform.position += glm::normalize(velocity) * dt * 5.0f;
         positionChanged = true;
         std::cout << transform.position.x << " y " << transform.position.y << " z " << transform.position.z
                   << std::endl;
@@ -78,7 +78,7 @@ void PlayerSystem::updateRotPos(float dt, CameraComponent &camera, TransformComp
 }
 
 void PlayerSystem::placeBlock(CameraComponent &camera, TransformComponent &transform) {
-    glm::ivec3 pChunkCoord = toChunk(transform.position);
+    glm::ivec2 pChunkCoord = toChunk(transform.position);
     float bestDist = -1;
     glm::ivec3 bestRes{};
     for (auto &it: chunkManager.chunks) {
@@ -94,17 +94,18 @@ void PlayerSystem::placeBlock(CameraComponent &camera, TransformComponent &trans
     }
 }
 
-std::pair<float, glm::ivec3> PlayerSystem::chunkRayHit(const glm::ivec3 &chunkCoords, ChunkComponent &chunk, const glm::vec3 &start, const glm::vec3 &dir) {
+std::pair<float, glm::ivec3> PlayerSystem::chunkRayHit(const glm::ivec2 &chunkCoords, ChunkComponent &chunk, const glm::vec3 &start, const glm::vec3 &dir) {
     const int m = 32;
     const int maxDist = 8;
     glm::ivec3 prevPos{};
     glm::vec3 curr = start;
     for(int step = 0; step < m * maxDist; step++) {
         glm::ivec3 currInt = floor(curr); // convert float to int
-        glm::ivec3 currChunkCoords = toChunk(currInt);
 
-        glm::ivec3 localCoords = toLocal(currInt);
         if(currInt != prevPos || step == 0) {
+            glm::ivec2 currChunkCoords = toChunk(curr);
+            glm::ivec3 localCoords = toLocal(currInt);
+
             if(currChunkCoords == chunkCoords && chunk.getBlock(localCoords) != BlockType::AIR) {
                 return {glm::distance(start, curr), prevPos};
             }

@@ -13,7 +13,7 @@ const unsigned int SCR_HEIGHT = 800;
 
 int main() {
 
-
+    stbi_set_flip_vertically_on_load(true);
     Application app;
     app.run();
 }

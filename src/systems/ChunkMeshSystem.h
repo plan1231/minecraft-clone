@@ -8,7 +8,7 @@
 #include "System.h"
 #include <vector>
 #include <glm/glm.hpp>
-
+#include "BlockType.h"
 class ChunkMeshSystem : public System {
 public:
     void update(float dt) override;
@@ -19,10 +19,9 @@ private:
         float u, v;
     };
 
+    static void emitFace(std::vector<Vertex> &vertices, std::vector<uint> &indices, const glm::ivec3 &localCoords, BlockType blockType, uint face);
 
-    static void emitFace(std::vector<Vertex> &vertices, std::vector<uint> &indices, const glm::ivec3 &localCoords, uint face);
-
-    static void emitBlock(std::vector<Vertex> &vertices, std::vector<uint> &indices, const glm::ivec3 &localCoords);
+    static void emitBlock(std::vector<Vertex> &vertices, std::vector<uint> &indices, const ChunkComponent &chunk, const AdjacentChunks &adjChunks, const glm::ivec3 &localCoords);
 };
 
 

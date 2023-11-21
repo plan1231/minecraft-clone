@@ -12,34 +12,34 @@
 
 namespace std {
     template<>
-    struct hash<glm::ivec3> {
-        size_t operator()(const glm::ivec3&vec) const {
+    struct hash<glm::ivec2> {
+        size_t operator()(const glm::ivec2 &vec) const {
             size_t h1 = std::hash<int>()(vec.x);
             size_t h2 = std::hash<int>()(vec.y);
-            size_t h3 = std::hash<int>()(vec.z);
-            return h1 ^ (h2 << 1) ^ (h3 << 2);
+            return h1 ^ (h2 << 1);
         }
     };
 }
 
+struct AdjacentChunks {
+    ChunkComponent *nextX, *prevX, *nextZ, *prevZ;
+};
+
 class ChunkManager {
 public:
-    std::unordered_map<glm::ivec3, entt::entity> chunks;
+    std::unordered_map<glm::ivec2, entt::entity> chunks;
 
     BlockType getBlock(const glm::ivec3 &coords);
 
     void setBlock(const glm::ivec3 &coords, BlockType blockType);
 
-    void loadChunk(const glm::ivec3 &chunkCoords, BlockType b);
+    void loadChunk(const glm::ivec2 &chunkCoords, BlockType b);
     ChunkManager(entt::registry &registry);
 
-    struct ChunkLocalCoords {
-        glm::ivec3 chunkCoords;
-        glm::ivec3 localCoords;
-    };
-
+    AdjacentChunks getAdjacent(const glm::ivec2 &chunkCoords);
 private:
     entt::registry &registry;
+    ChunkComponent *getChunk(const glm::ivec2 &chunkCoords);
 };
 
 

@@ -15,8 +15,8 @@ Game::Game(InputManager &inputManager): inputManager(inputManager) {
 
     entt::locator<ChunkManager>::emplace(ChunkManager(registry));
 
-    entt::locator<ChunkManager>::value().loadChunk({0, 0, 0}, BlockType::DIRT);
-    entt::locator<ChunkManager>::value().loadChunk({-1, 0, 0}, BlockType::AIR);
+    entt::locator<ChunkManager>::value().loadChunk({0, 0}, BlockType::DIRT);
+    entt::locator<ChunkManager>::value().loadChunk({-1, 0}, BlockType::AIR);
     systems.push_back(new PlayerSystem(registry, dispatcher));
     systems.push_back(new ChunkMeshSystem(registry, dispatcher));
     systems.push_back(new RenderingSystem(registry, dispatcher));
