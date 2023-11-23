@@ -66,8 +66,6 @@ void PlayerSystem::updateRotPos(float dt, CameraComponent &camera, TransformComp
     if (velocity != glm::vec3{}) {
         transform.position += glm::normalize(velocity) * dt * 5.0f;
         positionChanged = true;
-        std::cout << transform.position.x << " y " << transform.position.y << " z " << transform.position.z
-                  << std::endl;
     }
 
     if (rotationChanged || positionChanged) {

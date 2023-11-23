@@ -15,6 +15,8 @@
 using BlockArray = std::array<BlockType, CHUNK_HEIGHT * CHUNK_LENGTH * CHUNK_LENGTH>;
 struct ChunkComponent {
     bool modified = true;
+
+    // storage order: y - x - z
     std::unique_ptr<BlockArray> blockTypes;
 
     ChunkComponent(BlockType b);

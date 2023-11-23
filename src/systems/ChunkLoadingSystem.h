@@ -5,9 +5,14 @@
 #ifndef MINECRAFT_CLONE_CHUNKLOADINGSYSTEM_H
 #define MINECRAFT_CLONE_CHUNKLOADINGSYSTEM_H
 
-
-class ChunkLoadingSystem {
-
+#include "System.h"
+#include "TerrainGenerator.h"
+class ChunkLoadingSystem: public System {
+public:
+    ChunkLoadingSystem(entt::registry &registry, entt::dispatcher &dispatcher);
+    void update(float dt) override;
+private:
+    TerrainGenerator terrainGen;
 };
 
 

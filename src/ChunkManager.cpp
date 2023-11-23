@@ -3,6 +3,9 @@
 //
 
 #include "ChunkManager.h"
+
+#include "Application.h"
+#include "Application.h"
 #include "components/MeshComponent.h"
 #include "components/TransformComponent.h"
 #include "components/ChunkComponent.h"
@@ -32,7 +35,7 @@ void ChunkManager::setBlock(const glm::ivec3 &coords, BlockType blockType) {
     component.modified = true;
 }
 
-void ChunkManager::loadChunk(const glm::ivec2 &chunkCoords, BlockType b) {
+::ChunkComponent& ChunkManager::loadChunk(const glm::ivec2&chunkCoords, BlockType b) {
     Geometry* g = new Geometry(VertexAttributes{
            VertexAttribute{3, GL_INT, GL_FALSE, 2 * sizeof(float) + 3 * sizeof(unsigned int), 0},
            VertexAttribute{2, GL_FLOAT, GL_FALSE, 2 * sizeof(float) + 3 * sizeof(unsigned int),  (void*)(3 * sizeof(unsigned int))},
@@ -45,6 +48,7 @@ void ChunkManager::loadChunk(const glm::ivec2 &chunkCoords, BlockType b) {
     registry.emplace<MeshComponent>(chunk, m);
     registry.emplace<TransformComponent>(chunk, glm::vec3{chunkCoords.x * CHUNK_LENGTH, 0.0f, chunkCoords.y * CHUNK_LENGTH}, glm::quat(), glm::vec3(1.0f, 1.0f, 1.0f));
     chunks[chunkCoords] = chunk;
+    return registry.get<ChunkComponent>(chunk);
 }
 
 ChunkManager::ChunkManager(entt::registry& registry): registry(registry) {
