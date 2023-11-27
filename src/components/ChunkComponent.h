@@ -10,7 +10,7 @@
 #include "BlockType.h"
 #include "vector_extensions.h"
 
-#define CHUNK_LENGTH 16
+#define CHUNK_LENGTH 32
 #define CHUNK_HEIGHT 256
 using BlockArray = std::array<BlockType, CHUNK_HEIGHT * CHUNK_LENGTH * CHUNK_LENGTH>;
 struct ChunkComponent {

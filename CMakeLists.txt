@@ -20,12 +20,13 @@ file(GLOB_RECURSE SHADER_FILES CONFIGURE_DEPENDS "${ASSETS_DIR}/shaders/*.glsl")
 include(cmake/CPM.cmake)
 
 # GLAD
+set(GLAD_PROFILE "core")
+set(GLAD_API "gl=4.1")
 CPMAddPackage(
   NAME glad
   GITHUB_REPOSITORY Dav1dde/glad
   VERSION 0.1.33
 )
-
 # GLM
 CPMAddPackage(
   NAME glm

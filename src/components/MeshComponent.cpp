@@ -5,5 +5,5 @@
 void MeshComponent::render(ShaderPtr& shaderPtr) const {
     texture->use(0);
     shaderPtr->setInt("ourTexture", 0);
-    geometry->draw();
+    mesh->draw();
 }

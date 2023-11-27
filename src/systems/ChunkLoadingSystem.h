@@ -7,6 +7,8 @@
 
 #include "System.h"
 #include "TerrainGenerator.h"
+#define LOAD_DISTANCE 5
+
 class ChunkLoadingSystem: public System {
 public:
     ChunkLoadingSystem(entt::registry &registry, entt::dispatcher &dispatcher);

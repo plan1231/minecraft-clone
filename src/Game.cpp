@@ -10,11 +10,14 @@
 
 #include "ChunkManager.h"
 #include "systems/ChunkLoadingSystem.h"
+#include "GameEntities.h"
 
 Game::Game(InputManager &inputManager): inputManager(inputManager) {
     entt::locator<InputManager>::emplace(inputManager);
     entt::locator<ChunkManager>::emplace(ChunkManager(registry));
-
+    entt::locator<GameEntities>::emplace(GameEntities {
+        .player = registry.create()
+    });
     systems.push_back(new PlayerSystem(registry, dispatcher));
     systems.push_back(new ChunkLoadingSystem(registry, dispatcher));
     systems.push_back(new ChunkMeshSystem(registry, dispatcher));

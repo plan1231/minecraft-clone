@@ -6,7 +6,6 @@
 
 #include "components/CameraComponent.h"
 #include "components/TransformComponent.h"
-const int LOAD_DISTANCE = 3;
 
 ChunkLoadingSystem::ChunkLoadingSystem(entt::registry& registry, entt::dispatcher& dispatcher):
     System(registry, dispatcher)

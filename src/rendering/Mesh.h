@@ -19,12 +19,12 @@ struct VertexAttribute {
 
 typedef std::vector<VertexAttribute> VertexAttributes;
 
-class Geometry {
+class Mesh {
     unsigned int vbo, vao, ebo;
     int drawMode;
     unsigned int drawCount;
 public:
-    Geometry(const VertexAttributes &attributes, int drawMode = GL_TRIANGLES);
+    Mesh(const VertexAttributes &attributes, int drawMode = GL_TRIANGLES);
 
     void draw() const;
 

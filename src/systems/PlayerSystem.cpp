@@ -9,9 +9,12 @@
 #include "components/ChunkComponent.h"
 #include <iostream>
 #include "vector_extensions.h"
+#include <entt/entt.hpp>
+#include "GameEntities.h"
+
 PlayerSystem::PlayerSystem(entt::registry &registry, entt::dispatcher &dispatcher) :
         System(registry, dispatcher) {
-    playerEntity = registry.create();
+    playerEntity = entt::locator<GameEntities>::value().player;
     TransformComponent &t = registry.emplace<TransformComponent>(playerEntity, glm::vec3(0.0f, 105.0f, 0.0f),
                                                                  glm::quat(),
                                                                  glm::vec3(1.0f, 1.0f, 1.0f));
@@ -70,6 +73,7 @@ void PlayerSystem::updateRotPos(float dt, CameraComponent &camera, TransformComp
 
     if (rotationChanged || positionChanged) {
         camera.calculateMatrices(transform);
+        camera.calculateFrustrum();
         dispatcher.trigger<CameraUpdateEvent>(CameraUpdateEvent{playerEntity});
     }
     lastCursorPos = cursorPos;

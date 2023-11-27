@@ -9,7 +9,7 @@
 #include "components/MeshComponent.h"
 #include "components/TransformComponent.h"
 #include "components/ChunkComponent.h"
-#include "rendering/Geometry.h"
+#include "rendering/Mesh.h"
 #include "vector_extensions.h"
 BlockType ChunkManager::getBlock(const glm::ivec3 &coords) {
     glm::ivec2 chunkCoords = toChunk(coords);
@@ -36,8 +36,8 @@ void ChunkManager::setBlock(const glm::ivec3 &coords, BlockType blockType) {
 }
 
 ::ChunkComponent& ChunkManager::loadChunk(const glm::ivec2&chunkCoords, BlockType b) {
-    Geometry* g = new Geometry(VertexAttributes{
-           VertexAttribute{3, GL_INT, GL_FALSE, 2 * sizeof(float) + 3 * sizeof(unsigned int), 0},
+    Mesh* g = new Mesh(VertexAttributes{
+           VertexAttribute{3, GL_FLOAT, GL_FALSE, 2 * sizeof(float) + 3 * sizeof(unsigned int), 0},
            VertexAttribute{2, GL_FLOAT, GL_FALSE, 2 * sizeof(float) + 3 * sizeof(unsigned int),  (void*)(3 * sizeof(unsigned int))},
        }, GL_TRIANGLES);
 
