@@ -76,5 +76,4 @@ void CameraComponent::calculateFrustrum() {
         plane.normal /= length;
         plane.distance /= length;
     }
-
 }
