@@ -62,7 +62,7 @@ void CameraComponent::calculateFrustrum() {
         pvMatrix[1][3] + pvMatrix[1][2],
         pvMatrix[2][3] + pvMatrix[2][2]
     };
-    frustrum.near.distance = {pvMatrix[3][3] - pvMatrix[3][2]};
+    frustrum.near.distance = {pvMatrix[3][3] + pvMatrix[3][2]};
 
     frustrum.far.normal = {
         pvMatrix[0][3] - pvMatrix[0][2],
