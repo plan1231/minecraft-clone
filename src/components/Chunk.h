@@ -13,13 +13,13 @@
 #define CHUNK_LENGTH 32
 #define CHUNK_HEIGHT 256
 using BlockArray = std::array<BlockType, CHUNK_HEIGHT * CHUNK_LENGTH * CHUNK_LENGTH>;
-struct ChunkComponent {
+struct Chunk {
     bool modified = true;
 
     // storage order: y - x - z
     std::unique_ptr<BlockArray> blockTypes;
 
-    ChunkComponent(BlockType b);
+    Chunk(BlockType b);
 
     BlockType getBlock(const glm::ivec3 &localCoords) const;
     void setBlock(const glm::ivec3 &localCoords, BlockType blockType);

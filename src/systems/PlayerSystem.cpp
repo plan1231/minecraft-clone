@@ -4,9 +4,10 @@
 
 #include "PlayerSystem.h"
 #include "events/CameraUpdateEvent.h"
-#include "components/TransformComponent.h"
-#include "components/CameraComponent.h"
-#include "components/ChunkComponent.h"
+#include "components/Transform.h"
+#include "components/Camera.h"
+#include "components/Chunk.h"
+#include "components/physics/Dynamics.h"
 #include <iostream>
 #include "vector_extensions.h"
 #include <entt/entt.hpp>
@@ -15,22 +16,37 @@
 PlayerSystem::PlayerSystem(entt::registry &registry, entt::dispatcher &dispatcher) :
         System(registry, dispatcher) {
     playerEntity = entt::locator<GameEntities>::value().player;
-    TransformComponent &t = registry.emplace<TransformComponent>(playerEntity, glm::vec3(0.0f, 105.0f, 0.0f),
+    Transform &t = registry.emplace<Transform>(playerEntity, glm::vec3(0.0f, 120.0f, 0.0f),
                                                                  glm::quat(),
                                                                  glm::vec3(1.0f, 1.0f, 1.0f));
-    registry.emplace<CameraComponent>(playerEntity).calculateMatrices(t);
+    registry.emplace<AABB>(playerEntity, AABB{
+        .min = t.position,
+        .max = t.position + glm::vec3{0.5f, 0.5f, 0.5f}
+    });
+    registry.emplace<Dynamics>(playerEntity);
+    Camera &c = registry.emplace<Camera>(playerEntity);
+    c.posOffset = {0.25f, 0.25f, 0.25f};
 }
 
 void PlayerSystem::update(float dt) {
-    CameraComponent &camera = registry.get<CameraComponent>(playerEntity);
-    TransformComponent &transform = registry.get<TransformComponent>(playerEntity);
+    Camera &camera = registry.get<Camera>(playerEntity);
+    Transform &transform = registry.get<Transform>(playerEntity);
     updateRotPos(dt, camera, transform);
+
+    static float timeSinceLastAction = 1.0f;
+    timeSinceLastAction += dt;
+    if(timeSinceLastAction < 0.5f) return;
+
     if (inputManager.getMouseButton(GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
         placeBlock(camera, transform);
+        timeSinceLastAction = 0.0f;
+    }
+    else if(inputManager.getMouseButton(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        timeSinceLastAction = 0.0f;
     }
 }
 
-void PlayerSystem::updateRotPos(float dt, CameraComponent &camera, TransformComponent &transform) {
+void PlayerSystem::updateRotPos(float dt, Camera &camera, Transform &transform) {
 
     static glm::dvec2 lastCursorPos = inputManager.getCursorPos();
     glm::dvec2 cursorPos = inputManager.getCursorPos();
@@ -51,7 +67,9 @@ void PlayerSystem::updateRotPos(float dt, CameraComponent &camera, TransformComp
     const glm::vec3 forward{camera.front.x, 0.0, camera.front.z};
     const glm::vec3 right{camera.right.x, 0.0, camera.right.z};
     const glm::vec3 up{0.0, 1.0, 0.0};
-    glm::vec3 velocity{};
+    Dynamics &dynamics = registry.get<Dynamics>(playerEntity);
+    glm::vec3 &velocity = dynamics.velocity;
+    velocity = glm::vec3(0.0f);
     if (inputManager.getKey(GLFW_KEY_W) == GLFW_PRESS)
         velocity += forward;
     if (inputManager.getKey(GLFW_KEY_S) == GLFW_PRESS)
@@ -64,39 +82,32 @@ void PlayerSystem::updateRotPos(float dt, CameraComponent &camera, TransformComp
         velocity += up;
     if (inputManager.getKey(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         velocity -= up;
-
-    bool positionChanged = false;
-    if (velocity != glm::vec3{}) {
-        transform.position += glm::normalize(velocity) * dt * 5.0f;
-        positionChanged = true;
-    }
-
-    if (rotationChanged || positionChanged) {
-        camera.calculateMatrices(transform);
-        camera.calculateFrustrum();
-        dispatcher.trigger<CameraUpdateEvent>(CameraUpdateEvent{playerEntity});
-    }
     lastCursorPos = cursorPos;
+    if(velocity != glm::vec3(0.0f)) {
+        velocity = glm::normalize(velocity) * 4.17f;
+    }
 }
 
-void PlayerSystem::placeBlock(CameraComponent &camera, TransformComponent &transform) {
+void PlayerSystem::placeBlock(Camera &camera, Transform &transform) {
     glm::ivec2 pChunkCoord = toChunk(transform.position);
     float bestDist = -1;
     glm::ivec3 bestRes{};
     for (auto &it: chunkManager.chunks) {
         if(manhattan(it.first, pChunkCoord) > 2) continue;
-        auto [dist, loc] = chunkRayHit(it.first, registry.get<ChunkComponent>(it.second), transform.position, camera.front);
+        auto [dist, loc] = chunkRayHit(it.first, registry.get<Chunk>(it.second), transform.position + camera.posOffset, camera.front);
         if(dist > 0 && (bestDist < 0 || dist < bestDist)) {
             bestDist = dist;
             bestRes = loc;
         }
     }
     if(bestDist > 0) {
+        BlockType old = chunkManager.getBlock(bestRes);
+        printf("Placing block at %d %d %d, was originally %d\n",bestRes.x, bestRes.y, bestRes.z, old);
         chunkManager.setBlock(bestRes, BlockType::DIRT);
     }
 }
 
-std::pair<float, glm::ivec3> PlayerSystem::chunkRayHit(const glm::ivec2 &chunkCoords, ChunkComponent &chunk, const glm::vec3 &start, const glm::vec3 &dir) {
+std::pair<float, glm::ivec3> PlayerSystem::chunkRayHit(const glm::ivec2 &chunkCoords, Chunk &chunk, const glm::vec3 &start, const glm::vec3 &dir) {
     const int m = 32;
     const int maxDist = 8;
     glm::ivec3 prevPos{};

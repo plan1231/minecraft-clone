@@ -5,9 +5,9 @@
 #ifndef MINECRAFT_CLONE_CAMERACOMPONENT_H
 #define MINECRAFT_CLONE_CAMERACOMPONENT_H
 #include <glm/glm.hpp>
-#include "TransformComponent.h"
-#include "geometry/Frustrum.h"
-struct CameraComponent {
+#include "Transform.h"
+#include "physics/geometry/Frustrum.h"
+struct Camera {
     glm::vec3 front, right, up;
     float width = 800.0f;
     float height = 600.0f;
@@ -16,6 +16,8 @@ struct CameraComponent {
     float far = 200.0f;
 
     float yaw = 0.0f, pitch = 0.0f;
+
+    glm::vec3 posOffset;
 
     glm::mat4 projectionMatrix;
     glm::mat4 viewMatrix;
@@ -26,7 +28,7 @@ struct CameraComponent {
      * \brief Calculate the projection and view matrices
      * \param transform represents the position of the camera
      */
-    void calculateMatrices(const TransformComponent& transform);
+    void calculateMatrices(const Transform& transform);
 
     /**
      * @brief Calculate the up, front, right vectors

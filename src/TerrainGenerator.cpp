@@ -5,7 +5,7 @@
 #include "TerrainGenerator.h"
 constexpr int BASE_HEIGHT = 100;
 constexpr double PERLIN_AMPLITUDE = 20.0;
-void TerrainGenerator::generateTerrain(ChunkComponent& cc, const glm::ivec2& chunkCoords) {
+void TerrainGenerator::generateTerrain(Chunk& cc, const glm::ivec2& chunkCoords) {
     std::vector<int> heightMap(CHUNK_LENGTH * CHUNK_LENGTH);
     for(int x = 0; x < CHUNK_LENGTH; x++) {
         for(int z = 0; z < CHUNK_LENGTH; z++) {

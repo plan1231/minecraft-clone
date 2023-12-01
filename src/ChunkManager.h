@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>
 #include "BlockType.h"
-#include "components/ChunkComponent.h"
+#include "components/Chunk.h"
 #include "rendering/Texture.h"
 #include "PerlinNoise.h"
 namespace std {
@@ -23,7 +23,7 @@ namespace std {
 }
 
 struct AdjacentChunks {
-    ChunkComponent *nextX, *prevX, *nextZ, *prevZ;
+    Chunk *nextX, *prevX, *nextZ, *prevZ;
 };
 
 class ChunkManager {
@@ -34,14 +34,14 @@ public:
 
     void setBlock(const glm::ivec3 &coords, BlockType blockType);
 
-    ChunkComponent& loadChunk(const glm::ivec2&chunkCoords, BlockType b);
+    Chunk& loadChunk(const glm::ivec2&chunkCoords, BlockType b);
     ChunkManager(entt::registry &registry);
 
     AdjacentChunks getAdjacent(const glm::ivec2 &chunkCoords);
 private:
     entt::registry &registry;
     PerlinNoise perlinNoise;
-    ChunkComponent *getChunk(const glm::ivec2 &chunkCoords);
+    Chunk *getChunk(const glm::ivec2 &chunkCoords);
 };
 
 

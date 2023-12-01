@@ -7,19 +7,21 @@
 #include "Application.h"
 #include "Application.h"
 #include "components/MeshComponent.h"
-#include "components/TransformComponent.h"
-#include "components/ChunkComponent.h"
+#include "components/Transform.h"
+#include "components/Chunk.h"
 #include "rendering/Mesh.h"
 #include "vector_extensions.h"
 BlockType ChunkManager::getBlock(const glm::ivec3 &coords) {
+    if(coords.y >= CHUNK_HEIGHT) return BlockType::AIR;
     glm::ivec2 chunkCoords = toChunk(coords);
     auto it = chunks.find(chunkCoords);
     if (it == chunks.end()) {
         return BlockType::AIR;
     }
     entt::entity entity = it->second;
-    ChunkComponent &component = registry.get<ChunkComponent>(entity);
-    return component.getBlock(coords);
+    Chunk &component = registry.get<Chunk>(entity);
+    glm::ivec3 localCoords = toLocal(coords);
+    return component.getBlock(localCoords);
 }
 
 void ChunkManager::setBlock(const glm::ivec3 &coords, BlockType blockType) {
@@ -30,12 +32,12 @@ void ChunkManager::setBlock(const glm::ivec3 &coords, BlockType blockType) {
         return;
     }
     entt::entity entity = it->second;
-    ChunkComponent &component = registry.get<ChunkComponent>(entity);
+    Chunk &component = registry.get<Chunk>(entity);
     component.setBlock(localCoords, blockType);
     component.modified = true;
 }
 
-::ChunkComponent& ChunkManager::loadChunk(const glm::ivec2&chunkCoords, BlockType b) {
+::Chunk& ChunkManager::loadChunk(const glm::ivec2&chunkCoords, BlockType b) {
     Mesh* g = new Mesh(VertexAttributes{
            VertexAttribute{3, GL_FLOAT, GL_FALSE, 2 * sizeof(float) + 3 * sizeof(unsigned int), 0},
            VertexAttribute{2, GL_FLOAT, GL_FALSE, 2 * sizeof(float) + 3 * sizeof(unsigned int),  (void*)(3 * sizeof(unsigned int))},
@@ -44,11 +46,11 @@ void ChunkManager::setBlock(const glm::ivec3 &coords, BlockType blockType) {
     Texture* t = new Texture(ASSETS_PATH"/textures/blocks.png");
     MeshComponent m{g, t};
     entt::entity chunk = registry.create();
-    registry.emplace<ChunkComponent>(chunk, ChunkComponent(b));
+    registry.emplace<Chunk>(chunk, Chunk(b));
     registry.emplace<MeshComponent>(chunk, m);
-    registry.emplace<TransformComponent>(chunk, glm::vec3{chunkCoords.x * CHUNK_LENGTH, 0.0f, chunkCoords.y * CHUNK_LENGTH}, glm::quat(), glm::vec3(1.0f, 1.0f, 1.0f));
+    registry.emplace<Transform>(chunk, glm::vec3{chunkCoords.x * CHUNK_LENGTH, 0.0f, chunkCoords.y * CHUNK_LENGTH}, glm::quat(), glm::vec3(1.0f, 1.0f, 1.0f));
     chunks[chunkCoords] = chunk;
-    return registry.get<ChunkComponent>(chunk);
+    return registry.get<Chunk>(chunk);
 }
 
 ChunkManager::ChunkManager(entt::registry& registry): registry(registry) {
@@ -63,10 +65,10 @@ AdjacentChunks ChunkManager::getAdjacent(const glm::ivec2& chunkCoords) {
     };
 }
 
-ChunkComponent* ChunkManager::getChunk(const glm::ivec2& chunkCoords) {
+Chunk* ChunkManager::getChunk(const glm::ivec2& chunkCoords) {
     auto it = chunks.find(chunkCoords);
     if (it == chunks.end()) {
         return nullptr;
     }
-    return &registry.get<ChunkComponent>(it->second);
+    return &registry.get<Chunk>(it->second);
 }

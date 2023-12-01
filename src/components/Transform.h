@@ -9,7 +9,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-struct TransformComponent {
+struct Transform {
     glm::vec3 position;
     glm::vec3 scale;
     glm::quat rotation;
@@ -17,6 +17,6 @@ struct TransformComponent {
     glm::mat4 transform;
 
     void calculateTransform();
-    TransformComponent(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
+    Transform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 };
 #endif //MINECRAFT_CLONE_TRANSFORMCOMPONENT_H

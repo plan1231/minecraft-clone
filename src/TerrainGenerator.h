@@ -6,11 +6,11 @@
 #define TERRAINGENERATOR_H
 
 #include "PerlinNoise.h"
-#include "components/ChunkComponent.h"
+#include "components/Chunk.h"
 
 class TerrainGenerator {
 public:
-    void generateTerrain(ChunkComponent &cc, const glm::ivec2 &chunkCoords);
+    void generateTerrain(Chunk &cc, const glm::ivec2 &chunkCoords);
 private:
     PerlinNoise noise;
 };

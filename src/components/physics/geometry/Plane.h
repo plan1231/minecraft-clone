@@ -5,7 +5,7 @@
 #ifndef PLANE_H
 #define PLANE_H
 
-#include <glm/glm.hpp>
+#include <../../../cmake-build-debug/_deps/glm-src/glm/glm.hpp>
 
 struct Plane {
     /**

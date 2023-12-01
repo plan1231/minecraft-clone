@@ -6,21 +6,29 @@
 
 #include "GameEntities.h"
 #include "components/MeshComponent.h"
-#include "components/TransformComponent.h"
-#include "components/CameraComponent.h"
-#include "components/ChunkComponent.h"
+#include "components/Transform.h"
+#include "components/Camera.h"
+#include "components/Chunk.h"
 
 void RenderingSystem::update(float dt) {
     shader->use();
     entt::entity player = entt::locator<GameEntities>::value().player;
 
-    registry.view<MeshComponent, TransformComponent>().each([&](auto entity, const MeshComponent& meshComponent, const TransformComponent& transform) {
+    const auto [camera, pTrans] = registry.get<Camera, Transform>(player);
+    camera.calculateMatrices(pTrans);
+    camera.calculateFrustrum();
+    shader->setMatrix4("projectionViewMatrix", camera.pvMatrix);
+
+    registry.view<MeshComponent, Transform>().each([&](auto entity, const MeshComponent& meshComponent, const Transform& transform) {
 
         // Frustrum culling for chunks
-        if(registry.all_of<ChunkComponent>(entity)) {
-            CameraComponent &camera = registry.get<CameraComponent>(player);
-            glm::vec3 halfLength = {CHUNK_LENGTH / 2, CHUNK_HEIGHT / 2, CHUNK_LENGTH};
-            AABB cAABB(halfLength, halfLength + transform.position);
+        if(registry.all_of<Chunk>(entity)) {
+            Camera &camera = registry.get<Camera>(player);
+
+            AABB cAABB{
+                .min = transform.position,
+                .max = transform.position + glm::vec3{CHUNK_LENGTH, CHUNK_HEIGHT, CHUNK_LENGTH}
+            };
             if(!camera.frustrum.contains(cAABB)) return;
         }
 
@@ -32,10 +40,8 @@ void RenderingSystem::update(float dt) {
 RenderingSystem::RenderingSystem(entt::registry& registry, entt::dispatcher& dispatcher) :
     System(registry, dispatcher),
     shader(new Shader(ASSETS_PATH"/shaders/chunk.vert.glsl", ASSETS_PATH"/shaders/chunk.frag.glsl")) {
-    dispatcher.sink<CameraUpdateEvent>().connect<&RenderingSystem::onCameraUpdate>(*this);
 }
 
 void RenderingSystem::onCameraUpdate(CameraUpdateEvent &event) {
-    const CameraComponent& cameraComponent = registry.get<CameraComponent>(event.entity);
-    shader->setMatrix4("projectionViewMatrix", cameraComponent.pvMatrix);
+
 }

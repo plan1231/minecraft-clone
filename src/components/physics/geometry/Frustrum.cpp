@@ -4,7 +4,7 @@
 
 #include "Frustrum.h"
 
-#include "classify.h"
+#include "collide.h"
 bool Frustrum::contains(const AABB& aabb) {
     for(const auto &plane : this->planes) {
         if(classify(aabb, plane) < 0.0f) return false;

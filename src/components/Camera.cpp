@@ -1,21 +1,21 @@
-#include "components/CameraComponent.h"
+#include "components/Camera.h"
 
-#include "components/TransformComponent.h"
+#include "components/Transform.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
-void CameraComponent::calculateMatrices(const TransformComponent& transform) {
+void Camera::calculateMatrices(const Transform& transform) {
     projectionMatrix = glm::perspective(glm::radians(fov), width / height, near, far);
-
+    glm::vec3 actualPos = transform.position + posOffset;
     calculateVectors();
-    glm::vec3 cameraTarget = transform.position + front;
+    glm::vec3 cameraTarget = actualPos + front;
 
-    viewMatrix = glm::lookAt(transform.position, cameraTarget, up);
+    viewMatrix = glm::lookAt(actualPos, cameraTarget, up);
 
     pvMatrix = projectionMatrix * viewMatrix;
 }
 
-void CameraComponent::calculateVectors() {
+void Camera::calculateVectors() {
     front = glm::vec3(
             cos(glm::radians(yaw)) * cos(glm::radians(pitch)),
             sin(glm::radians(pitch)),
@@ -27,7 +27,7 @@ void CameraComponent::calculateVectors() {
     this->up = glm::normalize(glm::cross(right, front));
 }
 
-void CameraComponent::calculateFrustrum() {
+void Camera::calculateFrustrum() {
 
     frustrum.left.normal = {
         pvMatrix[0][3] + pvMatrix[0][0],

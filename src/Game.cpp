@@ -11,6 +11,7 @@
 #include "ChunkManager.h"
 #include "systems/ChunkLoadingSystem.h"
 #include "GameEntities.h"
+#include "systems/PhysicsSystem.h"
 
 Game::Game(InputManager &inputManager): inputManager(inputManager) {
     entt::locator<InputManager>::emplace(inputManager);
@@ -21,6 +22,7 @@ Game::Game(InputManager &inputManager): inputManager(inputManager) {
     systems.push_back(new PlayerSystem(registry, dispatcher));
     systems.push_back(new ChunkLoadingSystem(registry, dispatcher));
     systems.push_back(new ChunkMeshSystem(registry, dispatcher));
+    systems.push_back(new PhysicsSystem(registry, dispatcher));
     systems.push_back(new RenderingSystem(registry, dispatcher));
 }
 

@@ -7,8 +7,8 @@
 
 #include "System.h"
 #include <entt/entt.hpp>
-#include "components/CameraComponent.h"
-#include "components/TransformComponent.h"
+#include "components/Camera.h"
+#include "components/Transform.h"
 #include "ChunkManager.h"
 
 class PlayerSystem : public System {
@@ -20,11 +20,11 @@ public:
 private:
     entt::entity playerEntity;
 
-    void updateRotPos(float dt, CameraComponent &camera, TransformComponent &transform);
+    void updateRotPos(float dt, Camera &camera, Transform &transform);
 
-    void placeBlock(CameraComponent &camera, TransformComponent &transform);
+    void placeBlock(Camera &camera, Transform &transform);
 
-    std::pair<float, glm::ivec3> chunkRayHit(const glm::ivec2 &chunkCoords, ChunkComponent &chunk, const glm::vec3&start, const glm::vec3 &dir);
+    std::pair<float, glm::ivec3> chunkRayHit(const glm::ivec2 &chunkCoords, Chunk &chunk, const glm::vec3&start, const glm::vec3 &dir);
 };
 
 

@@ -4,10 +4,10 @@
 
 #include "ChunkMeshSystem.h"
 
-#include "components/CameraComponent.h"
-#include "components/ChunkComponent.h"
+#include "components/Camera.h"
+#include "components/Chunk.h"
 #include "components/MeshComponent.h"
-#include "components/TransformComponent.h"
+#include "components/Transform.h"
 #include "systems/ChunkLoadingSystem.h"
 // Credit: https://github.com/jdah/minecraft-again/blob/master/src/level/chunk_renderer.cpp
 /*  3D CUBE
@@ -78,29 +78,14 @@ static const glm::ivec3 CUBE_VERTICES[] = {
     glm::ivec3(1, 0, 1)
 };
 
-static const glm::vec3 CUBE_NORMALS[] = {
-    glm::vec3(0, 0, 1),
-    glm::vec3(0, 0, -1),
-    glm::vec3(1, 0, 0),
-    glm::vec3(-1, 0, 0),
-    glm::vec3(0, 1, 0),
-    glm::vec3(0, -1, 0),
-};
-
-static const glm::vec2 CUBE_UVS[] = {
-    glm::vec2(0, 0),
-    glm::vec2(0.0625, 0),
-    glm::vec2(0.0625, 0.0625),
-    glm::vec2(0, 0.0625),
-};
 
 
 void ChunkMeshSystem::update(float dt) {
-    auto playerView = registry.view<TransformComponent, CameraComponent>();
-    playerView.each([&](TransformComponent&playerTransform, auto) {
+    auto playerView = registry.view<Transform, Camera>();
+    playerView.each([&](Transform&playerTransform, auto) {
         glm::ivec2 pChunkCoords = toChunk(playerTransform.position);
-        registry.view<ChunkComponent, MeshComponent, TransformComponent>().each(
-            [&](ChunkComponent&chunk, MeshComponent&mesh, TransformComponent&transform) {
+        registry.view<Chunk, MeshComponent, Transform>().each(
+            [&](Chunk&chunk, MeshComponent&mesh, Transform&transform) {
                 if (!chunk.modified) return;
                 glm::ivec2 chunkCoords = toChunk(transform.position);
                 if (abs(chunkCoords.x - pChunkCoords.x) > LOAD_DISTANCE - 1 || abs(chunkCoords.y - pChunkCoords.y) >
@@ -109,10 +94,19 @@ void ChunkMeshSystem::update(float dt) {
                 std::vector<Vertex> vertices;
                 std::vector<uint> indices;
                 AdjacentChunks adjChunks = chunkManager.getAdjacent(chunkCoords);
-                for (uint y = 0; y < CHUNK_HEIGHT; y++) {
-                    for (uint x = 0; x < CHUNK_LENGTH; x++) {
+                for (int y = 0; y < CHUNK_HEIGHT; y++) {
+                    for (int x = 0; x < CHUNK_LENGTH; x++) {
                         for (int z = 0; z < CHUNK_LENGTH; z++) {
                             BlockType blockType = chunk.getBlock({x, y, z});
+                            // glm::ivec3 coords;
+                            //
+                            // coords.x = x + chunkCoords.x * CHUNK_LENGTH;
+                            // coords.y = y;
+                            // coords.z = z + chunkCoords.y * CHUNK_LENGTH;
+                            // if(chunkManager.getBlock(coords) != blockType) {
+                            //     printf("WTF");
+                            //     chunkManager.getBlock(coords);
+                            // }
                             if (blockType == BlockType::AIR) continue;
                             emitBlock(vertices, indices, chunk, adjChunks, {x, y, z});
                         }
@@ -128,7 +122,7 @@ void ChunkMeshSystem::update(float dt) {
 void ChunkMeshSystem::emitBlock(
     std::vector<Vertex> &vertices,
     std::vector<uint> &indices,
-    const ChunkComponent &chunk,
+    const Chunk &chunk,
     const AdjacentChunks &adjChunks,
     const glm::ivec3 &localCoords) {
     BlockType currBlockType = chunk.getBlock(localCoords);
@@ -199,8 +193,8 @@ void ChunkMeshSystem::emitFace(std::vector<Vertex>&vertices, std::vector<uint> &
     uint offset = vertices.size();
     for (uint corner = 0; corner < 4; corner++) {
         // 4 vertices per face
-        const glm::ivec3&cubeVertex = CUBE_VERTICES[CUBE_INDICES[6 * face + UNIQUE_INDICES[corner]]];
-        const glm::vec2&uv = BlockTypeInfo::get(blockType).textCoords(face, corner);
+        const glm::ivec3 &cubeVertex = CUBE_VERTICES[CUBE_INDICES[6 * face + UNIQUE_INDICES[corner]]];
+        const glm::vec2 &uv = BlockTypeInfo::get(blockType).textCoords(face, corner);
         const Vertex v{
             .x = localCoords.x + cubeVertex.x,
             .y = localCoords.y + cubeVertex.y,
