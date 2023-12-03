@@ -10,9 +10,16 @@
 #include "BlockType.h"
 #include "vector_extensions.h"
 
-#define CHUNK_LENGTH 32
-#define CHUNK_HEIGHT 256
-using BlockArray = std::array<BlockType, CHUNK_HEIGHT * CHUNK_LENGTH * CHUNK_LENGTH>;
+constexpr int CHUNK_SIZE = 32;
+constexpr int CHUNK_ACTUAL_SIZE = CHUNK_SIZE + 2;
+constexpr int MAX_Y = 256;
+using BlockArray = std::array<BlockType, CHUNK_ACTUAL_SIZE * CHUNK_ACTUAL_SIZE * CHUNK_ACTUAL_SIZE>;
+
+// Block coords and Block Local coords
+// Guards against passing the wrong coord type to a function
+using BCoords = glm::ivec3;
+using BLocalCoords = glm::ivec3;
+
 struct Chunk {
     bool modified = true;
 
@@ -21,16 +28,20 @@ struct Chunk {
 
     Chunk(BlockType b);
 
-    BlockType getBlock(const glm::ivec3 &localCoords) const;
-    void setBlock(const glm::ivec3 &localCoords, BlockType blockType);
+    BlockType getBlock(const BLocalCoords &localCoords) const;
+    void setBlock(const BLocalCoords &localCoords, BlockType blockType);
 };
 
-constexpr glm::ivec2 toChunk(const glm::vec3 &coords) {
-    return {floor(coords.x / CHUNK_LENGTH), floor(coords.z / CHUNK_LENGTH)};
+constexpr glm::ivec3 toChunk(const glm::vec3 &globalCoords) {
+    return floor(globalCoords / static_cast<float>(CHUNK_SIZE));
 }
 
-constexpr glm::ivec3 toLocal(const glm::vec3 &coords) {
-    const glm::ivec2 chunkCoords = toChunk(coords);
-    return {floor(coords.x) - chunkCoords.x * CHUNK_LENGTH, coords.y, floor(coords.z) - chunkCoords.y * CHUNK_LENGTH};
+constexpr BLocalCoords toLocal(const glm::vec3 &globalCoords) {
+    const glm::ivec3 chunkCoords = toChunk(globalCoords);
+    return floor(globalCoords) - (chunkCoords * CHUNK_SIZE) + glm::ivec3(1);
+}
+
+constexpr glm::ivec3 toGlobal(const glm::ivec3 &localCoords, const glm::ivec3 &chunkCoords) {
+    return localCoords - glm::ivec3(1) + chunkCoords * CHUNK_SIZE;
 }
 #endif //MINECRAFT_CLONE_CHUNKCOMPONENT_H

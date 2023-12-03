@@ -12,12 +12,11 @@
 #include <stdio.h>
 #include <vector>
 
-PhysicsSystem::PhysicsSystem(entt::registry &registry, entt::dispatcher &dispatcher): System(registry, dispatcher) {
+PhysicsSystem::PhysicsSystem(entt::registry&registry, entt::dispatcher&dispatcher): System(registry, dispatcher) {
 }
 
 void PhysicsSystem::update(float dt) {
-    registry.view<Dynamics, AABB, Transform>().each([&](Dynamics&dyn, AABB&aabb, Transform&transform) {
-
+    registry.view<Dynamics, AABB, Transform>().each([&](Dynamics &dyn, AABB &aabb, Transform &transform) {
         glm::ivec3 minInt = floor(aabb.min);
         glm::ivec3 maxInt = floor(aabb.max);
         glm::vec3 oldPos = transform.position;
@@ -43,12 +42,14 @@ void PhysicsSystem::update(float dt) {
 
             if (!collisions.empty()) {
                 auto it = std::ranges::min_element(
-                    collisions, [](const std::tuple<float, glm::vec3, glm::ivec3>&lhs, const std::tuple<float, glm::vec3, glm::ivec3>&rhs) {
+                    collisions, [](const std::tuple<float, glm::vec3, glm::ivec3>&lhs,
+                                   const std::tuple<float, glm::vec3, glm::ivec3>&rhs) {
                         return std::get<0>(lhs) < std::get<0>(rhs);
                     });
                 auto [cTime, normal, loc] = *it;
                 cTime -= 0.001;
-                printf("got collision with block %d %d %d  normal %f %f %f, player loc %f %f %f\n", loc.x, loc.y, loc.z, normal.x, normal.y, normal.z, transform.position.x, transform.position.y, transform.position.z);
+                printf("got collision with block %d %d %d  normal %f %f %f, player loc %f %f %f\n", loc.x, loc.y, loc.z,
+                       normal.x, normal.y, normal.z, transform.position.x, transform.position.y, transform.position.z);
 
                 if (normal.x) {
                     dyn.velocity.x = 0;
@@ -66,8 +67,7 @@ void PhysicsSystem::update(float dt) {
         }
         transform.position += dyn.velocity * dt;
         glm::vec3 dsplcmnt = transform.position - oldPos;
-     aabb.max += dsplcmnt;
-     aabb.min += dsplcmnt;
-
+        aabb.max += dsplcmnt;
+        aabb.min += dsplcmnt;
     });
 }

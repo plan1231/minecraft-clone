@@ -4,9 +4,11 @@
 
 #include "ChunkMeshSystem.h"
 
+#include <iostream>
+
 #include "components/Camera.h"
 #include "components/Chunk.h"
-#include "components/MeshComponent.h"
+#include "components/Model.h"
 #include "components/Transform.h"
 #include "systems/ChunkLoadingSystem.h"
 // Credit: https://github.com/jdah/minecraft-again/blob/master/src/level/chunk_renderer.cpp
@@ -83,32 +85,18 @@ static const glm::ivec3 CUBE_VERTICES[] = {
 void ChunkMeshSystem::update(float dt) {
     auto playerView = registry.view<Transform, Camera>();
     playerView.each([&](Transform&playerTransform, auto) {
-        glm::ivec2 pChunkCoords = toChunk(playerTransform.position);
-        registry.view<Chunk, MeshComponent, Transform>().each(
-            [&](Chunk&chunk, MeshComponent&mesh, Transform&transform) {
+        glm::ivec3 pChunkCoords = toChunk(playerTransform.position);
+        registry.view<Chunk, Model, Transform>().each(
+            [&](Chunk&chunk, Model&mesh, Transform&transform) {
                 if (!chunk.modified) return;
-                glm::ivec2 chunkCoords = toChunk(transform.position);
-                if (abs(chunkCoords.x - pChunkCoords.x) > LOAD_DISTANCE - 1 || abs(chunkCoords.y - pChunkCoords.y) >
-                    LOAD_DISTANCE - 1)
-                    return;
                 std::vector<Vertex> vertices;
                 std::vector<uint> indices;
-                AdjacentChunks adjChunks = chunkManager.getAdjacent(chunkCoords);
-                for (int y = 0; y < CHUNK_HEIGHT; y++) {
-                    for (int x = 0; x < CHUNK_LENGTH; x++) {
-                        for (int z = 0; z < CHUNK_LENGTH; z++) {
-                            BlockType blockType = chunk.getBlock({x, y, z});
-                            // glm::ivec3 coords;
-                            //
-                            // coords.x = x + chunkCoords.x * CHUNK_LENGTH;
-                            // coords.y = y;
-                            // coords.z = z + chunkCoords.y * CHUNK_LENGTH;
-                            // if(chunkManager.getBlock(coords) != blockType) {
-                            //     printf("WTF");
-                            //     chunkManager.getBlock(coords);
-                            // }
+                for (int y = 1; y <= CHUNK_SIZE; y++) {
+                    for (int x = 1; x <= CHUNK_SIZE; x++) {
+                        for (int z = 1; z <= CHUNK_SIZE; z++) {
+                            BlockType blockType = chunk.getBlock({x , y, z});
                             if (blockType == BlockType::AIR) continue;
-                            emitBlock(vertices, indices, chunk, adjChunks, {x, y, z});
+                            emitBlock(vertices, indices, chunk, {x, y, z});
                         }
                     }
                 }
@@ -123,84 +111,134 @@ void ChunkMeshSystem::emitBlock(
     std::vector<Vertex> &vertices,
     std::vector<uint> &indices,
     const Chunk &chunk,
-    const AdjacentChunks &adjChunks,
     const glm::ivec3 &localCoords) {
     BlockType currBlockType = chunk.getBlock(localCoords);
 
     // +z face
-    if (localCoords.z == CHUNK_LENGTH - 1) {
-        if (adjChunks.nextZ != nullptr && BlockTypeInfo::get(
-                adjChunks.nextZ->getBlock({localCoords.x, localCoords.y, 0})).isTransparent) {
-            emitFace(vertices, indices, localCoords, currBlockType, 0);
-        }
-    }
-    else if (BlockTypeInfo::get(chunk.getBlock({localCoords.x, localCoords.y, localCoords.z + 1})).isTransparent) {
-        emitFace(vertices, indices, localCoords, currBlockType, 0);
+    if (BlockTypeInfo::get(chunk.getBlock({localCoords.x, localCoords.y, localCoords.z + 1})).isTransparent) {
+        emitFace(vertices, indices, chunk, localCoords, currBlockType, Face::SOUTH);
     }
 
     // -z face
-    if (localCoords.z == 0) {
-        if (adjChunks.prevZ != nullptr && BlockTypeInfo::get(adjChunks.prevZ->getBlock({
-                localCoords.x, localCoords.y, CHUNK_LENGTH - 1
-            })).isTransparent) {
-            emitFace(vertices, indices, localCoords, currBlockType, 1);
-        }
-    }
-    else if (BlockTypeInfo::get(chunk.getBlock({localCoords.x, localCoords.y, localCoords.z - 1})).isTransparent) {
-        emitFace(vertices, indices, localCoords, currBlockType, 1);
+    if (BlockTypeInfo::get(chunk.getBlock({localCoords.x, localCoords.y, localCoords.z - 1})).isTransparent) {
+        emitFace(vertices, indices, chunk, localCoords, currBlockType, Face::NORTH);
     }
 
     // +x face
-    if (localCoords.x == CHUNK_LENGTH - 1) {
-        if (adjChunks.nextX != nullptr && BlockTypeInfo::get(
-                adjChunks.nextX->getBlock({0, localCoords.y, localCoords.z})).isTransparent) {
-            emitFace(vertices, indices, localCoords, currBlockType, 2);
-        }
-    }
-    else if (BlockTypeInfo::get(chunk.getBlock({localCoords.x + 1, localCoords.y, localCoords.z})).isTransparent) {
-        emitFace(vertices, indices, localCoords, currBlockType, 2);
+    if (BlockTypeInfo::get(chunk.getBlock({localCoords.x + 1, localCoords.y, localCoords.z})).isTransparent) {
+        emitFace(vertices, indices, chunk, localCoords, currBlockType, Face::EAST);
     }
 
     // -x face
-    if (localCoords.x == 0) {
-        if (adjChunks.prevX != nullptr && BlockTypeInfo::get(adjChunks.prevX->getBlock({
-                CHUNK_LENGTH - 1, localCoords.y, localCoords.z
-            })).isTransparent) {
-            emitFace(vertices, indices, localCoords, currBlockType, 3);
-        }
-    }
-    else if (BlockTypeInfo::get(chunk.getBlock({localCoords.x - 1, localCoords.y, localCoords.z})).isTransparent) {
-        emitFace(vertices, indices, localCoords, currBlockType, 3);
+    if (BlockTypeInfo::get(chunk.getBlock({localCoords.x - 1, localCoords.y, localCoords.z})).isTransparent) {
+        emitFace(vertices, indices, chunk, localCoords, currBlockType, Face::WEST);
     }
 
     // +y face
-    if (localCoords.y == CHUNK_HEIGHT - 1 || BlockTypeInfo::get(chunk.getBlock({
-            localCoords.x, localCoords.y + 1, localCoords.z
-        })).isTransparent) {
-        emitFace(vertices, indices, localCoords, currBlockType, 4);
+    if (BlockTypeInfo::get(chunk.getBlock({localCoords.x, localCoords.y + 1, localCoords.z})).isTransparent) {
+        emitFace(vertices, indices, chunk, localCoords, currBlockType, Face::UP);
     }
 
     // -y face
-    if (localCoords.y != 0 && BlockTypeInfo::get(chunk.getBlock({localCoords.x, localCoords.y - 1, localCoords.z})).
-        isTransparent) {
-        emitFace(vertices, indices, localCoords, currBlockType, 5);
+    if (BlockTypeInfo::get(chunk.getBlock({localCoords.x, localCoords.y - 1, localCoords.z})).isTransparent) {
+        emitFace(vertices, indices, chunk, localCoords, currBlockType, Face::DOWN);
     }
 }
 
-void ChunkMeshSystem::emitFace(std::vector<Vertex>&vertices, std::vector<uint> &indices, const glm::ivec3 &localCoords,
-                               BlockType blockType,
-                               uint face) {
-    uint offset = vertices.size();
-    for (uint corner = 0; corner < 4; corner++) {
+std::array<int, 4> ChunkMeshSystem::getFaceAo(const Chunk &chunk, const BCoords& coords, Face face) {
+    const int x = coords.x, y = coords.y, z = coords.z;
+    int a, b, c, d, e, f, g, h;
+
+    switch(face) {
+
+        case Face::NORTH:
+            a = BlockTypeInfo::get(chunk.getBlock({x + 1, y + 1, z - 1})).isTransparent;
+            b = BlockTypeInfo::get(chunk.getBlock({x    , y + 1, z - 1})).isTransparent;
+            c = BlockTypeInfo::get(chunk.getBlock({x - 1, y + 1, z - 1})).isTransparent;
+            d = BlockTypeInfo::get(chunk.getBlock({x + 1, y    , z - 1})).isTransparent;
+            e = BlockTypeInfo::get(chunk.getBlock({x - 1, y    , z - 1})).isTransparent;
+            f = BlockTypeInfo::get(chunk.getBlock({x + 1, y - 1, z - 1})).isTransparent;
+            g = BlockTypeInfo::get(chunk.getBlock({x    , y - 1, z - 1})).isTransparent;
+            h = BlockTypeInfo::get(chunk.getBlock({x - 1, y - 1, z - 1})).isTransparent;
+            break;
+        case Face::SOUTH:
+            a = BlockTypeInfo::get(chunk.getBlock({x - 1, y + 1, z + 1})).isTransparent;
+            b = BlockTypeInfo::get(chunk.getBlock({x    , y + 1, z + 1})).isTransparent;
+            c = BlockTypeInfo::get(chunk.getBlock({x + 1, y + 1, z + 1})).isTransparent;
+            d = BlockTypeInfo::get(chunk.getBlock({x - 1, y    , z + 1})).isTransparent;
+            e = BlockTypeInfo::get(chunk.getBlock({x + 1, y    , z + 1})).isTransparent;
+            f = BlockTypeInfo::get(chunk.getBlock({x - 1, y - 1, z + 1})).isTransparent;
+            g = BlockTypeInfo::get(chunk.getBlock({x    , y - 1, z + 1})).isTransparent;
+            h = BlockTypeInfo::get(chunk.getBlock({x + 1, y - 1, z + 1})).isTransparent;
+            break;
+        case Face::UP:
+            a = BlockTypeInfo::get(chunk.getBlock({x + 1, y + 1, z + 1})).isTransparent;
+            b = BlockTypeInfo::get(chunk.getBlock({x    , y + 1, z + 1})).isTransparent;
+            c = BlockTypeInfo::get(chunk.getBlock({x - 1, y + 1, z + 1})).isTransparent;
+            d = BlockTypeInfo::get(chunk.getBlock({x + 1, y + 1, z    })).isTransparent;
+            e = BlockTypeInfo::get(chunk.getBlock({x - 1, y + 1, z    })).isTransparent;
+            f = BlockTypeInfo::get(chunk.getBlock({x + 1, y + 1, z - 1})).isTransparent;
+            g = BlockTypeInfo::get(chunk.getBlock({x    , y + 1, z - 1})).isTransparent;
+            h = BlockTypeInfo::get(chunk.getBlock({x - 1, y + 1, z - 1})).isTransparent;
+            break;
+        case Face::DOWN:
+            a = BlockTypeInfo::get(chunk.getBlock({x - 1, y - 1, z + 1})).isTransparent;
+            b = BlockTypeInfo::get(chunk.getBlock({x    , y - 1, z + 1})).isTransparent;
+            c = BlockTypeInfo::get(chunk.getBlock({x + 1, y - 1, z + 1})).isTransparent;
+            d = BlockTypeInfo::get(chunk.getBlock({x - 1, y - 1, z    })).isTransparent;
+            e = BlockTypeInfo::get(chunk.getBlock({x + 1, y - 1, z    })).isTransparent;
+            f = BlockTypeInfo::get(chunk.getBlock({x - 1, y - 1, z - 1})).isTransparent;
+            g = BlockTypeInfo::get(chunk.getBlock({x    , y - 1, z - 1})).isTransparent;
+            h = BlockTypeInfo::get(chunk.getBlock({x + 1, y - 1, z - 1})).isTransparent;
+            break;
+        case Face::EAST:
+            a = BlockTypeInfo::get(chunk.getBlock({x + 1, y + 1, z + 1})).isTransparent;
+            b = BlockTypeInfo::get(chunk.getBlock({x + 1, y + 1, z    })).isTransparent;
+            c = BlockTypeInfo::get(chunk.getBlock({x + 1, y + 1, z - 1})).isTransparent;
+            d = BlockTypeInfo::get(chunk.getBlock({x + 1, y    , z + 1})).isTransparent;
+            e = BlockTypeInfo::get(chunk.getBlock({x + 1, y    , z - 1})).isTransparent;
+            f = BlockTypeInfo::get(chunk.getBlock({x + 1, y - 1, z + 1})).isTransparent;
+            g = BlockTypeInfo::get(chunk.getBlock({x + 1, y - 1, z   })).isTransparent;
+            h = BlockTypeInfo::get(chunk.getBlock({x + 1, y - 1, z - 1})).isTransparent;
+            break;
+        case Face::WEST:
+            a = BlockTypeInfo::get(chunk.getBlock({x - 1, y + 1, z - 1})).isTransparent;
+            b = BlockTypeInfo::get(chunk.getBlock({x - 1, y + 1, z    })).isTransparent;
+            c = BlockTypeInfo::get(chunk.getBlock({x - 1, y + 1, z + 1})).isTransparent;
+            d = BlockTypeInfo::get(chunk.getBlock({x - 1, y    , z - 1})).isTransparent;
+            e = BlockTypeInfo::get(chunk.getBlock({x - 1, y    , z + 1})).isTransparent;
+            f = BlockTypeInfo::get(chunk.getBlock({x - 1, y - 1, z - 1})).isTransparent;
+            g = BlockTypeInfo::get(chunk.getBlock({x - 1, y - 1, z    })).isTransparent;
+            h = BlockTypeInfo::get(chunk.getBlock({x - 1, y - 1, z + 1})).isTransparent;
+            break;
+    }
+
+   return std::array<int, 4>{d + f + g, g + h + e, b + c + e, d + a + b};
+}
+
+void ChunkMeshSystem::emitFace(std::vector<Vertex>&vertices,
+    std::vector<uint> &indices,
+    const Chunk &chunk,
+    const glm::ivec3 &localCoords,
+    BlockType blockType,
+    Face face) {
+
+    unsigned int offset = vertices.size();
+    auto faceInt = static_cast<unsigned int>(face);
+    std::array<int, 4> aoVals = getFaceAo(chunk, localCoords, face);
+    // printf("ao vals %d %d %d %d\n", aoVals[0], aoVals[1], aoVals[2], aoVals[3]);
+    for (unsigned int corner = 0; corner < 4; corner++) {
         // 4 vertices per face
-        const glm::ivec3 &cubeVertex = CUBE_VERTICES[CUBE_INDICES[6 * face + UNIQUE_INDICES[corner]]];
+        const glm::ivec3 &cubeVertex = CUBE_VERTICES[CUBE_INDICES[6 * faceInt + UNIQUE_INDICES[corner]]];
         const glm::vec2 &uv = BlockTypeInfo::get(blockType).textCoords(face, corner);
         const Vertex v{
-            .x = localCoords.x + cubeVertex.x,
-            .y = localCoords.y + cubeVertex.y,
-            .z = localCoords.z + cubeVertex.z,
+            // subtract 1 to account for 1-block thick border of adjacent chunk blocks
+            .x = localCoords.x + cubeVertex.x - 1,
+            .y = localCoords.y + cubeVertex.y - 1,
+            .z = localCoords.z + cubeVertex.z - 1,
             .u = uv.x,
             .v = uv.y,
+            .aoLvl = aoVals[corner]
         };
         vertices.push_back(v);
     }

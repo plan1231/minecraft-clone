@@ -7,5 +7,6 @@ The project structure is inspired by that of
 ## Features
 - Frustum culling
 - Swept AABB Collision Detection
+- Ambient Occlusion
 ## External libraries
 - Perlin Noise (`src/PerlinNoise.cpp` and `src/PerlinNoise.h`): https://github.com/sol-prog/Perlin_Noise/

@@ -10,7 +10,7 @@
 
 class TerrainGenerator {
 public:
-    void generateTerrain(Chunk &cc, const glm::ivec2 &chunkCoords);
+    void generateTerrain(Chunk &cc, const glm::ivec3 &chunkCoords);
 private:
     PerlinNoise noise;
 };

@@ -11,6 +11,15 @@ enum class BlockType: uint32_t {
     DIRT,
 };
 
+//
+enum class Face {
+    SOUTH,
+    NORTH,
+    EAST,
+    WEST,
+    UP,
+    DOWN
+};
 
 struct BlockTypeInfo {
     static BlockTypeInfo blockTypes[];
@@ -24,7 +33,7 @@ struct BlockTypeInfo {
         int textureIndex; // for plants
     };
 
-    glm::vec2 textCoords(int face, int corner) const;
+    glm::vec2 textCoords(Face face, int corner) const;
 };
 
 

@@ -31,9 +31,9 @@ BlockTypeInfo BlockTypeInfo::get(BlockType blockType) {
  * 2 - Top right
  * 3 - Top left
  */
-glm::vec2 BlockTypeInfo::textCoords(int face, int corner) const {
-    int row = textureIndices[face] / ITEMS_PER_ROW;
-    int col = textureIndices[face] % ITEMS_PER_ROW;
+glm::vec2 BlockTypeInfo::textCoords(Face face, int corner) const {
+    int row = textureIndices[static_cast<int>(face)] / ITEMS_PER_ROW;
+    int col = textureIndices[static_cast<int>(face)] % ITEMS_PER_ROW;
 
     glm::vec2 res = {ITEM_LENGTH * col,ITEM_LENGTH * row};
 

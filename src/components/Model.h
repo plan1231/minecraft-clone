@@ -8,7 +8,7 @@
 #include "rendering/Texture.h"
 #include "rendering/Shader.h"
 
-struct MeshComponent {
+struct Model {
     Mesh* mesh;
     Texture* texture;
     void render(ShaderPtr& shaderPtr) const;
