@@ -10,6 +10,8 @@
 #include "Game.h"
 #include "InputManager.h"
 
+constexpr int WINDOW_WIDTH = 1024;
+constexpr int WINDOW_HEIGHT = 768;
 
 class Application {
     std::unique_ptr<Game> game;

@@ -6,11 +6,12 @@
 #define MINECRAFT_CLONE_CAMERACOMPONENT_H
 #include <glm/glm.hpp>
 #include "Transform.h"
+#include "Application.h"
 #include "physics/geometry/Frustrum.h"
 struct Camera {
     glm::vec3 front, right, up;
-    float width = 800.0f;
-    float height = 600.0f;
+    float width = WINDOW_WIDTH;
+    float height = WINDOW_HEIGHT;
     float fov = 60.0f;
     float near = 0.1f;
     float far = 200.0f;

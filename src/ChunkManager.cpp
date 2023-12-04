@@ -6,6 +6,7 @@
 
 #include "Application.h"
 #include "Application.h"
+#include "factories.h"
 #include "components/Model.h"
 #include "components/Transform.h"
 #include "components/Chunk.h"
@@ -39,24 +40,7 @@ void ChunkManager::setBlock(const glm::ivec3 &coords, BlockType blockType) {
 }
 
 ::Chunk& ChunkManager::loadChunk(const glm::ivec3 &chunkCoords, BlockType b) {
-    Mesh* g = new Mesh(VertexAttributes{
-        VertexAttribute{3, GL_FLOAT, GL_FALSE, 5 * sizeof(float) + 1 * sizeof(unsigned int), 0},
-        VertexAttribute{
-            2, GL_FLOAT, GL_FALSE, 5 * sizeof(float) + 1 * sizeof(unsigned int),
-            (void *)(3 * sizeof(float))
-        },
-        VertexAttribute{1, GL_FLOAT, GL_FALSE, 5 * sizeof(float) + 1 * sizeof(unsigned int),
-            (void *)(5 * sizeof(float))
-        }
-    }, GL_TRIANGLES);
-
-    Texture* t = new Texture(ASSETS_PATH"/textures/blocks.png");
-    Model m{g, t};
-    entt::entity chunk = registry.create();
-    registry.emplace<Chunk>(chunk, Chunk(b));
-    registry.emplace<Model>(chunk, m);
-    registry.emplace<Transform>(chunk, glm::vec3{chunkCoords.x * CHUNK_SIZE, chunkCoords.y * CHUNK_SIZE, chunkCoords.z * CHUNK_SIZE},
-                                glm::quat(), glm::vec3(1.0f, 1.0f, 1.0f));
+    entt::entity chunk = makeChunk(registry, chunkCoords);
     chunks[chunkCoords] = chunk;
     return registry.get<Chunk>(chunk);
 }

@@ -35,5 +35,6 @@ public:
                     unsigned int usage = GL_STATIC_DRAW);
 };
 
+using MeshPtr = std::shared_ptr<Mesh>;
 
 #endif //MINECRAFT_CLONE_GEOMETRY_H

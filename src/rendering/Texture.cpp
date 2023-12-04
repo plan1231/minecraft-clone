@@ -36,3 +36,4 @@ void Texture::use(unsigned int texUnit) const {
     glActiveTexture(GL_TEXTURE0 + texUnit);
     glBindTexture(GL_TEXTURE_2D, texture);
 }
+

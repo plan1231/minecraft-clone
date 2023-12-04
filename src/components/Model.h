@@ -7,10 +7,11 @@
 #include "rendering/Mesh.h"
 #include "rendering/Texture.h"
 #include "rendering/Shader.h"
+#include <memory>
 
 struct Model {
-    Mesh* mesh;
-    Texture* texture;
+    MeshPtr mesh;
+    TexturePtr texture;
     void render(ShaderPtr& shaderPtr) const;
 };
 #endif //MINECRAFT_CLONE_MESHCOMPONENT_H

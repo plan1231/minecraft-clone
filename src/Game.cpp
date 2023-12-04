@@ -6,18 +6,19 @@
 #include "systems/RenderingSystem.h"
 #include "systems/PlayerSystem.h"
 #include "systems/ChunkMeshSystem.h"
+#include "systems/PhysicsSystem.h"
+#include "systems/ChunkLoadingSystem.h"
 
+#include "factories.h"
 
 #include "ChunkManager.h"
-#include "systems/ChunkLoadingSystem.h"
 #include "GameEntities.h"
-#include "systems/PhysicsSystem.h"
 
 Game::Game(InputManager &inputManager): inputManager(inputManager) {
     entt::locator<InputManager>::emplace(inputManager);
     entt::locator<ChunkManager>::emplace(ChunkManager(registry));
     entt::locator<GameEntities>::emplace(GameEntities {
-        .player = registry.create()
+        .player = makePlayer(registry)
     });
     systems.push_back(new PlayerSystem(registry, dispatcher));
     systems.push_back(new ChunkLoadingSystem(registry, dispatcher));

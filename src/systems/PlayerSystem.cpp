@@ -16,16 +16,6 @@
 PlayerSystem::PlayerSystem(entt::registry &registry, entt::dispatcher &dispatcher) :
         System(registry, dispatcher) {
     playerEntity = entt::locator<GameEntities>::value().player;
-    Transform &t = registry.emplace<Transform>(playerEntity, glm::vec3(0.0f, 120.0f, 0.0f),
-                                                                 glm::quat(),
-                                                                 glm::vec3(1.0f, 1.0f, 1.0f));
-    registry.emplace<AABB>(playerEntity, AABB{
-        .min = t.position,
-        .max = t.position + glm::vec3{0.5f, 0.5f, 0.5f}
-    });
-    registry.emplace<Dynamics>(playerEntity);
-    Camera &c = registry.emplace<Camera>(playerEntity);
-    c.posOffset = {0.25f, 0.25f, 0.25f};
 }
 
 void PlayerSystem::update(float dt) {

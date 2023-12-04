@@ -21,8 +21,8 @@ Application::Application() {
 
     // glfw window creation
     // --------------------
-    window = glfwCreateWindow(800, 600, "Minecraft Clone", NULL, NULL);
-    if (window == NULL) {
+    window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Minecraft Clone", nullptr, nullptr);
+    if (window == nullptr) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         exit(1);
