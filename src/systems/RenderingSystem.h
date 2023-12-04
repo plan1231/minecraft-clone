@@ -10,8 +10,8 @@
 #include "rendering/Shader.h"
 
 class RenderingSystem : public System {
-    ShaderPtr shader;
-
+    ShaderPtr chunkShader;
+    ShaderPtr lineShader;
     void onCameraUpdate(CameraUpdateEvent &event);
 
 public:

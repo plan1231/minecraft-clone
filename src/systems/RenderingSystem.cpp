@@ -9,17 +9,18 @@
 #include "components/Transform.h"
 #include "components/Camera.h"
 #include "components/Chunk.h"
+#include "components/Crosshair.h"
 
 void RenderingSystem::update(float dt) {
-    shader->use();
+    chunkShader->use();
     entt::entity player = entt::locator<GameEntities>::value().player;
 
     const auto [camera, pTrans] = registry.get<Camera, Transform>(player);
     camera.calculateMatrices(pTrans);
     camera.calculateFrustrum();
-    shader->setMatrix4("projectionViewMatrix", camera.pvMatrix);
+    chunkShader->setMatrix4("projectionViewMatrix", camera.pvMatrix);
 
-    registry.view<Model, Transform>().each([&](auto entity, const Model& meshComponent, const Transform& transform) {
+    registry.view<Model, Transform>().each([&](auto entity, const Model &model, const Transform &transform) {
 
         // Frustrum culling for chunks
         if(registry.all_of<Chunk>(entity)) {
@@ -32,14 +33,26 @@ void RenderingSystem::update(float dt) {
             if(!camera.frustrum.contains(cAABB)) return;
         }
 
-        shader->setMatrix4("modelMatrix", transform.transform);
-        meshComponent.render(shader);
+        chunkShader->setMatrix4("modelMatrix", transform.transform);
+        model.render(chunkShader);
+    });
+
+    lineShader->use();
+
+    registry.view<Model, Crosshair>().each([&](auto entity, const Model &model, const Crosshair &crosshair) {
+        lineShader->setMatrix4("projectionMatrix", crosshair.projectionMatrix);
+        model.render(lineShader);
+
     });
 }
 
 RenderingSystem::RenderingSystem(entt::registry& registry, entt::dispatcher& dispatcher) :
     System(registry, dispatcher),
-    shader(new Shader(ASSETS_PATH"/shaders/chunk.vert.glsl", ASSETS_PATH"/shaders/chunk.frag.glsl")) {
+    chunkShader{std::make_shared<Shader>(ASSETS_PATH"/shaders/chunk.vert.glsl", ASSETS_PATH"/shaders/chunk.frag.glsl")},
+    lineShader{std::make_shared<Shader>(ASSETS_PATH"/shaders/line.vert.glsl", ASSETS_PATH"/shaders/line.frag.glsl")}
+{
+    glLineWidth(CROSSHAIR_THICKNESS);
+
 }
 
 void RenderingSystem::onCameraUpdate(CameraUpdateEvent &event) {

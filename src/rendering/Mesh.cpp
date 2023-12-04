@@ -30,11 +30,11 @@ void Mesh::draw() const {
 
 void
 Mesh::bufferData(const std::vector<float> &vertices, const std::vector<unsigned int> &indices, unsigned int usage) {
-    bufferData(reinterpret_cast<const char *>(vertices.data()), sizeof(float) * vertices.size(), indices, usage);
+    bufferData(vertices.data(), sizeof(float) * vertices.size(), indices, usage);
 }
 
-void Mesh::bufferData(const char *data, unsigned int bytes, const std::vector<unsigned int> &indices,
-                          unsigned int usage) {
+void Mesh::bufferData(const void* data, unsigned int bytes, const std::vector<unsigned int> &indices,
+                      unsigned int usage) {
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);

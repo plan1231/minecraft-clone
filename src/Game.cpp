@@ -20,6 +20,9 @@ Game::Game(InputManager &inputManager): inputManager(inputManager) {
     entt::locator<GameEntities>::emplace(GameEntities {
         .player = makePlayer(registry)
     });
+
+    makeCrosshair(registry);
+
     systems.push_back(new PlayerSystem(registry, dispatcher));
     systems.push_back(new ChunkLoadingSystem(registry, dispatcher));
     systems.push_back(new ChunkMeshSystem(registry, dispatcher));

@@ -31,7 +31,7 @@ public:
     void bufferData(const std::vector<float> &vertices, const std::vector<unsigned int> &indices,
                     unsigned int usage = GL_STATIC_DRAW);
 
-    void bufferData(const char *data, unsigned int bytes, const std::vector<unsigned int> &indices,
+    void bufferData(const void* data, unsigned int bytes, const std::vector<unsigned int> &indices,
                     unsigned int usage = GL_STATIC_DRAW);
 };
 

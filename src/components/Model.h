@@ -12,6 +12,6 @@
 struct Model {
     MeshPtr mesh;
     TexturePtr texture;
-    void render(ShaderPtr& shaderPtr) const;
+    void render(ShaderPtr shaderPtr) const;
 };
 #endif //MINECRAFT_CLONE_MESHCOMPONENT_H

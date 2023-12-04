@@ -11,4 +11,6 @@ entt::entity makePlayer(entt::registry &registry);
 
 entt::entity makeChunk(entt::registry &registry, const glm::ivec3 &chunkCoords);
 
+entt::entity makeCrosshair(entt::registry &registry);
+
 #endif //FACTORIES_H
