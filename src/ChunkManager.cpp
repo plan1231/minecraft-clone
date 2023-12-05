@@ -36,7 +36,31 @@ void ChunkManager::setBlock(const glm::ivec3 &coords, BlockType blockType) {
     entt::entity entity = it->second;
     Chunk &component = registry.get<Chunk>(entity);
     component.setBlock(localCoords, blockType);
-    component.modified = true;
+
+    // also update the neighboring chunks' record of this location
+    AdjacentChunks adjChunks = getAdjacent(chunkCoords);
+
+    if(localCoords.x == 1 && adjChunks.prevX) {
+        adjChunks.prevX->setBlock({CHUNK_ACTUAL_SIZE - 1, localCoords.y, localCoords.z}, blockType);
+    }
+    else if(localCoords.x == CHUNK_SIZE && adjChunks.nextX) {
+        adjChunks.nextX->setBlock({0, localCoords.y, localCoords.z}, blockType);
+    }
+
+    if(localCoords.y == 1 && adjChunks.prevY) {
+        adjChunks.prevY->setBlock({localCoords.x, CHUNK_ACTUAL_SIZE - 1, localCoords.z}, blockType);
+    }
+    else if(localCoords.y == CHUNK_SIZE && adjChunks.nextY) {
+        adjChunks.nextY->setBlock({localCoords.x,0, localCoords.z}, blockType);
+    }
+
+    if(localCoords.z == 1 && adjChunks.prevZ) {
+        adjChunks.prevZ->setBlock({localCoords.x, localCoords.y, CHUNK_ACTUAL_SIZE - 1}, blockType);
+    }
+    else if(localCoords.z == CHUNK_SIZE && adjChunks.nextZ) {
+        adjChunks.nextZ->setBlock({localCoords.x, localCoords.y, 0}, blockType);
+    }
+
 }
 
 ::Chunk& ChunkManager::loadChunk(const glm::ivec3 &chunkCoords, BlockType b) {

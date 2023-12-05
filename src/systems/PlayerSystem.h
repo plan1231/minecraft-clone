@@ -10,6 +10,12 @@
 #include "components/Camera.h"
 #include "components/Transform.h"
 #include "ChunkManager.h"
+#include "components/physics/geometry/AABB.h"
+#include "components/physics/geometry/AABB.h"
+#include "components/physics/geometry/AABB.h"
+#include "components/physics/geometry/AABB.h"
+#include "components/physics/geometry/AABB.h"
+#include "components/physics/geometry/AABB.h"
 
 class PlayerSystem : public System {
 public:
@@ -24,7 +30,7 @@ private:
 
     void placeBlock(Camera &camera, Transform &transform);
 
-    std::pair<float, glm::ivec3> chunkRayHit(const glm::ivec2 &chunkCoords, Chunk &chunk, const glm::vec3&start, const glm::vec3 &dir);
+    std::pair<float, glm::ivec3> raycast(const glm::vec3&start, const glm::vec3 &dir, bool retLastAir);
 };
 
 

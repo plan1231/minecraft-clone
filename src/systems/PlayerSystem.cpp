@@ -80,39 +80,27 @@ void PlayerSystem::updateRotPos(float dt, Camera &camera, Transform &transform) 
 
 void PlayerSystem::placeBlock(Camera &camera, Transform &transform) {
     glm::ivec2 pChunkCoord = toChunk(transform.position);
-    float bestDist = -1;
-    glm::ivec3 bestRes{};
-    for (auto &it: chunkManager.chunks) {
-        if(manhattan(it.first, pChunkCoord) > 2) continue;
-        auto [dist, loc] = chunkRayHit(it.first, registry.get<Chunk>(it.second), transform.position + camera.posOffset, camera.front);
-        if(dist > 0 && (bestDist < 0 || dist < bestDist)) {
-            bestDist = dist;
-            bestRes = loc;
-        }
-    }
-    if(bestDist > 0) {
-        BlockType old = chunkManager.getBlock(bestRes);
-        printf("Placing block at %d %d %d, was originally %d\n",bestRes.x, bestRes.y, bestRes.z, old);
-        chunkManager.setBlock(bestRes, BlockType::DIRT);
+    auto [dist, loc] = raycast(transform.position + camera.posOffset, camera.front, true);
+    if(dist > 0) {
+        BlockType old = chunkManager.getBlock(loc);
+        chunkManager.setBlock(loc, BlockType::DIRT);
     }
 }
 
-std::pair<float, glm::ivec3> PlayerSystem::chunkRayHit(const glm::ivec2 &chunkCoords, Chunk &chunk, const glm::vec3 &start, const glm::vec3 &dir) {
+std::pair<float, glm::ivec3> PlayerSystem::raycast(const glm::vec3 &start, const glm::vec3 &dir, bool retLastAir) {
     const int m = 32;
     const int maxDist = 8;
-    glm::ivec3 prevPos{};
+    glm::ivec3 prevInt{};
     glm::vec3 curr = start;
     for(int step = 0; step < m * maxDist; step++) {
-        glm::ivec3 currInt = floor(curr); // convert float to int
+        glm::ivec3 currInt = floor(curr); // convert float to int. We must floor it or else it doesn't work for negative numbers
 
-        if(currInt != prevPos || step == 0) {
-            glm::ivec2 currChunkCoords = toChunk(curr);
-            glm::ivec3 localCoords = toLocal(currInt);
+        if(currInt != prevInt || step == 0) {
 
-            if(currChunkCoords == chunkCoords && chunk.getBlock(localCoords) != BlockType::AIR) {
-                return {glm::distance(start, curr), prevPos};
+            if(chunkManager.getBlock(currInt) != BlockType::AIR) {
+                return {glm::distance(start, curr),  retLastAir ? prevInt : currInt};
             }
-            prevPos = currInt;
+            prevInt = currInt;
         }
         curr += dir / static_cast<float>(m);
     }

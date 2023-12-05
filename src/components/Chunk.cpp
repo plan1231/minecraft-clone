@@ -14,4 +14,5 @@ BlockType Chunk::getBlock(const glm::ivec3 &localCoords) const {
 
 void Chunk::setBlock(const glm::ivec3& localCoords, BlockType blockType) {
     (*blockTypes)[localCoords.y * CHUNK_ACTUAL_SIZE * CHUNK_ACTUAL_SIZE + localCoords.x * CHUNK_ACTUAL_SIZE + localCoords.z] = blockType;
+    modified = true;
 }
