@@ -5,12 +5,11 @@
 #ifndef MINECRAFT_CLONE_CHUNKMANAGER_H
 #define MINECRAFT_CLONE_CHUNKMANAGER_H
 #include <unordered_map>
-#include <glm/glm.hpp>
-#include <entt/entt.hpp>
 #include "BlockType.h"
 #include "components/Chunk.h"
 #include "rendering/Texture.h"
 #include "PerlinNoise.h"
+
 namespace std {
     template<>
     struct hash<glm::ivec3> {

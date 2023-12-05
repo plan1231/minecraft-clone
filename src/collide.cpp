@@ -28,7 +28,7 @@ std::tuple<bool, float, glm::vec3> collide(const AABB &s, const AABB &m, const g
     for(int i = 0; i < 3; i++) {
         if(vel[i] < 0.0f) {
             if(m.max[i] < s.min[i]) return {false, {}, {}}; // Nonintersecting and moving apart
-            if(s.max[i] < m.min[i]) {
+            if(s.max[i] <= m.min[i]) {
                 tfirstArr[i] = (s.max[i] - m.min[i]) / vel[i];
                 tfirst = std::max(tfirstArr[i], tfirst);
             }
@@ -36,7 +36,7 @@ std::tuple<bool, float, glm::vec3> collide(const AABB &s, const AABB &m, const g
         }
         else if(vel[i] > 0.0f) {
             if(m.min[i] > s.max[i]) return {false, {}, {}};  // Nonintersecting and moving apart
-            if(s.min[i] > m.max[i]) {
+            if(s.min[i] >= m.max[i]) {
                 tfirstArr[i] = (s.min[i] - m.max[i]) / vel[i];
                 tfirst = std::max(tfirstArr[i], tfirst);
             }

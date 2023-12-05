@@ -8,7 +8,7 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 #include "Game.h"
-#include "InputManager.h"
+#include "managers/InputManager.h"
 
 constexpr int WINDOW_WIDTH = 1024;
 constexpr int WINDOW_HEIGHT = 768;

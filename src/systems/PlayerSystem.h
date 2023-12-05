@@ -9,13 +9,7 @@
 #include <entt/entt.hpp>
 #include "components/Camera.h"
 #include "components/Transform.h"
-#include "ChunkManager.h"
-#include "components/physics/geometry/AABB.h"
-#include "components/physics/geometry/AABB.h"
-#include "components/physics/geometry/AABB.h"
-#include "components/physics/geometry/AABB.h"
-#include "components/physics/geometry/AABB.h"
-#include "components/physics/geometry/AABB.h"
+#include "components/CharacterMovement.h"
 
 class PlayerSystem : public System {
 public:
@@ -26,7 +20,7 @@ public:
 private:
     entt::entity playerEntity;
 
-    void updateRotPos(float dt, Camera &camera, Transform &transform);
+    void updateRotPos(float dt, Camera &camera, Transform &transform, CharacterMovement &cm);
 
     void placeBlock(Camera &camera, Transform &transform);
 

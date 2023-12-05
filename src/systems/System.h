@@ -6,8 +6,8 @@
 #define MINECRAFT_CLONE_SYSTEM_H
 
 #include <entt/entt.hpp>
-#include "InputManager.h"
-#include "ChunkManager.h"
+#include "managers/InputManager.h"
+#include "managers/ChunkManager.h"
 
 class System {
 protected:
@@ -17,7 +17,6 @@ protected:
     ChunkManager &chunkManager;
 public:
     System(entt::registry &registry, entt::dispatcher &dispatcher);
-
     virtual void update(float dt) = 0;
 };
 

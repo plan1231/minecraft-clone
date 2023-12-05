@@ -12,12 +12,12 @@ ChunkLoadingSystem::ChunkLoadingSystem(entt::registry &registry, entt::dispatche
 }
 
 void ChunkLoadingSystem::update(float dt) {
-    static int tickCount = 99;
-    tickCount++;
-    if (tickCount == 100) {
-        tickCount = 0;
-    }
-    else return;
+    // static int tickCount = 99;
+    // tickCount++;
+    // if (tickCount == 100) {
+    //     tickCount = 0;
+    // }
+    // else return;
     registry.view<Transform, Camera>().each([&](Transform &transform, Camera &camera) {
         glm::ivec3 chunkCoords = toChunk(transform.position);
         for (int y = std::max(chunkCoords.y - LOAD_DISTANCE, 0); y <= std::min(chunkCoords.y + LOAD_DISTANCE, 5); y++) {

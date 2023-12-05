@@ -4,14 +4,10 @@
 
 #include "ChunkManager.h"
 
-#include "Application.h"
-#include "Application.h"
 #include "factories.h"
 #include "components/Model.h"
 #include "components/Transform.h"
 #include "components/Chunk.h"
-#include "rendering/Mesh.h"
-#include "vector_extensions.h"
 
 BlockType ChunkManager::getBlock(const glm::ivec3 &coords) {
     if (coords.y >= MAX_Y) return BlockType::AIR;

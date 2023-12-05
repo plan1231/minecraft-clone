@@ -11,7 +11,7 @@
 
 #include "factories.h"
 
-#include "ChunkManager.h"
+#include "managers/ChunkManager.h"
 #include "GameEntities.h"
 
 Game::Game(InputManager &inputManager): inputManager(inputManager) {

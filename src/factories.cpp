@@ -7,6 +7,7 @@
 #include "components/physics/geometry/AABB.h"
 #include "components/physics/Dynamics.h"
 #include "components/Camera.h"
+#include "components/CharacterMovement.h"
 #include "components/Chunk.h"
 #include "components/Crosshair.h"
 #include "components/Model.h"
@@ -20,13 +21,15 @@ entt::entity makePlayer(entt::registry &registry) {
 
     registry.emplace<AABB>(player, AABB{
                                .min = t.position,
-                               .max = t.position + glm::vec3{0.5f, 0.5f, 0.5f}
+                               .max = t.position + glm::vec3{0.5f, 1.8f, 0.5f}
                            });
 
     registry.emplace<Dynamics>(player);
 
+    registry.emplace<CharacterMovement>(player);
+
     Camera &c = registry.emplace<Camera>(player);
-    c.posOffset = {0.25f, 0.25f, 0.25f};
+    c.posOffset = {0.25f, 1.8f, 0.25f};
 
     return player;
 }
