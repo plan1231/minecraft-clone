@@ -32,6 +32,7 @@ void PlayerSystem::update(float dt) {
         timeSinceLastAction = 0.0f;
     }
     else if(inputManager.getMouseButton(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        removeBlock(camera, transform);
         timeSinceLastAction = 0.0f;
     }
 }
@@ -79,11 +80,16 @@ void PlayerSystem::updateRotPos(float dt, Camera &camera, Transform &transform) 
 }
 
 void PlayerSystem::placeBlock(Camera &camera, Transform &transform) {
-    glm::ivec2 pChunkCoord = toChunk(transform.position);
     auto [dist, loc] = raycast(transform.position + camera.posOffset, camera.front, true);
     if(dist > 0) {
-        BlockType old = chunkManager.getBlock(loc);
         chunkManager.setBlock(loc, BlockType::DIRT);
+    }
+}
+
+void PlayerSystem::removeBlock(Camera& camera, Transform& transform) {
+    auto [dist, loc] = raycast(transform.position + camera.posOffset, camera.front, false);
+    if(dist > 0) {
+        chunkManager.setBlock(loc, BlockType::AIR);
     }
 }
 

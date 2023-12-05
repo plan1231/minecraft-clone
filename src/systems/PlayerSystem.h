@@ -30,6 +30,8 @@ private:
 
     void placeBlock(Camera &camera, Transform &transform);
 
+    void removeBlock(Camera &camera, Transform &transform);
+
     std::pair<float, glm::ivec3> raycast(const glm::vec3&start, const glm::vec3 &dir, bool retLastAir);
 };
 
