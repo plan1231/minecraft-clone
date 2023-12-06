@@ -10,6 +10,7 @@
 #include "components/Camera.h"
 #include "components/Chunk.h"
 #include "components/Crosshair.h"
+#include "components/TempMesh.h"
 
 void RenderingSystem::update(float dt) {
     chunkShader->use();
@@ -19,6 +20,14 @@ void RenderingSystem::update(float dt) {
     camera.calculateMatrices(pTrans);
     camera.calculateFrustrum();
     chunkShader->setMatrix4("projectionViewMatrix", camera.pvMatrix);
+
+    registry.view<Model, TempMesh<BlockVertex>, Chunk>().each([](Model &model, TempMesh<BlockVertex> &tmpMesh, Chunk &chunk) {
+        if(!chunk.modified)  return;
+        model.mesh->bufferData(tmpMesh.vertices.data(), tmpMesh.vertices.size() * sizeof(BlockVertex),
+                                     tmpMesh.indices, GL_STATIC_DRAW);
+        chunk.modified = false;
+    });
+
 
     registry.view<Model, Transform>().each([&](auto entity, const Model &model, const Transform &transform) {
 

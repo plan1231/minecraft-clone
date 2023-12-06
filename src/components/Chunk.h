@@ -44,4 +44,11 @@ constexpr BLocalCoords toLocal(const glm::vec3 &globalCoords) {
 constexpr glm::ivec3 toGlobal(const glm::ivec3 &localCoords, const glm::ivec3 &chunkCoords) {
     return localCoords - glm::ivec3(1) + chunkCoords * CHUNK_SIZE;
 }
+
+struct BlockVertex {
+    int x, y, z;
+    float u, v;
+    int aoLvl;
+};
+
 #endif //MINECRAFT_CLONE_CHUNKCOMPONENT_H

@@ -11,21 +11,18 @@
 #include <glm/glm.hpp>
 #include "BlockType.h"
 #include "components/Chunk.h"
+#include "components/TempMesh.h"
+
 class ChunkMeshSystem : public System {
 public:
     void update(float dt) override;
     ChunkMeshSystem(entt::registry &registry, entt::dispatcher &dispatcher);
 private:
-    struct Vertex {
-        int x, y, z;
-        float u, v;
-        int aoLvl;
-    };
+
 
     static std::array<int, 4> getFaceAo(const Chunk &chunk, const BCoords &coords, Face face);
-    static void emitFace(std::vector<Vertex> &vertices, std::vector<uint> &indices, const Chunk &chunk, const glm::ivec3 &localCoords, BlockType blockType, Face face);
-
-    static void emitBlock(std::vector<Vertex> &vertices, std::vector<uint> &indices, const Chunk &chunk, const glm::ivec3 &localCoords);
+    static void emitFace(TempMesh<BlockVertex> &tmpMesh, Chunk &chunk, const glm::ivec3 &localCoords, BlockType blockType, Face face);
+    static void emitBlock(TempMesh<BlockVertex> &tmpMesh, Chunk &chunk, const glm::ivec3 &localCoords);
 };
 
 

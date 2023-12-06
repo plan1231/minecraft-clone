@@ -24,10 +24,14 @@ void ChunkLoadingSystem::update(float dt) {
             for (int x = chunkCoords.x - LOAD_DISTANCE; x <= chunkCoords.x + LOAD_DISTANCE; x++) {
                 for (int z = chunkCoords.z - LOAD_DISTANCE; z <= chunkCoords.z + LOAD_DISTANCE; z++) {
                     if (chunkManager.chunks.contains({x, y, z})) continue;
-                    Chunk&cc = chunkManager.loadChunk({x, y, z}, BlockType::AIR);
+                    Chunk &cc = chunkManager.loadChunk({x, y, z}, BlockType::AIR);
+                    threadPool.queueJob([&]() {
+                        terrainGen.generateTerrain(cc, {x, y, z});
+                    });
                     terrainGen.generateTerrain(cc, {x, y, z});
                 }
             }
         }
+        threadPool.waitForCompletion();
     });
 }

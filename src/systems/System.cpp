@@ -8,6 +8,8 @@ System::System(entt::registry &registry, entt::dispatcher &dispatcher) :
         registry(registry),
         dispatcher(dispatcher),
         chunkManager(entt::locator<ChunkManager>::value()),
-        inputManager(entt::locator<InputManager>::value()){
+        inputManager(entt::locator<InputManager>::value()),
+        threadPool(entt::locator<ThreadPool>::value())
+{
 
 }

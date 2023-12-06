@@ -11,6 +11,7 @@
 #include "components/Chunk.h"
 #include "components/Crosshair.h"
 #include "components/Model.h"
+#include "components/TempMesh.h"
 
 entt::entity makePlayer(entt::registry &registry) {
     entt::entity player = registry.create();
@@ -55,6 +56,7 @@ entt::entity makeChunk(entt::registry& registry, const glm::ivec3& chunkCoords) 
     registry.emplace<Model>(chunk, Model{ meshPtr, chunkTexture});
     registry.emplace<Transform>(chunk, glm::vec3{chunkCoords.x * CHUNK_SIZE, chunkCoords.y * CHUNK_SIZE, chunkCoords.z * CHUNK_SIZE},
                                 glm::quat(), glm::vec3(1.0f, 1.0f, 1.0f));
+    registry.emplace<TempMesh<BlockVertex>>(chunk);
     return chunk;
 }
 

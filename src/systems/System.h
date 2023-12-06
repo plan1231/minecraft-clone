@@ -6,6 +6,8 @@
 #define MINECRAFT_CLONE_SYSTEM_H
 
 #include <entt/entt.hpp>
+
+#include "ThreadPool.h"
 #include "managers/InputManager.h"
 #include "managers/ChunkManager.h"
 
@@ -15,6 +17,7 @@ protected:
     entt::dispatcher &dispatcher;
     InputManager &inputManager;
     ChunkManager &chunkManager;
+    ThreadPool &threadPool;
 public:
     System(entt::registry &registry, entt::dispatcher &dispatcher);
     virtual void update(float dt) = 0;
