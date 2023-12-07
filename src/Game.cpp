@@ -15,15 +15,11 @@
 #include "GameEntities.h"
 #include "ThreadPool.h"
 
-Game::Game(InputManager &inputManager): inputManager(inputManager) {
-    entt::locator<InputManager>::emplace(inputManager);
+Game::Game() {
     entt::locator<ChunkManager>::emplace(registry);
     entt::locator<GameEntities>::emplace(GameEntities {
         .player = makePlayer(registry)
     });
-
-    ThreadPool &threadPool = entt::locator<ThreadPool>::emplace();
-    threadPool.start();
 
     makeCrosshair(registry);
 

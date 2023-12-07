@@ -10,7 +10,7 @@
 
 class InputManager {
 
-    GLFWwindow *window;
+    GLFWwindow *window = nullptr;
 
 public:
     InputManager(GLFWwindow *window);

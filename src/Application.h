@@ -8,14 +8,12 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 #include "Game.h"
-#include "managers/InputManager.h"
 
 constexpr int WINDOW_WIDTH = 1024;
 constexpr int WINDOW_HEIGHT = 768;
 
 class Application {
     std::unique_ptr<Game> game;
-    std::unique_ptr<InputManager> inputManager;
 
     bool stopRequested = false;
     GLFWwindow *window = nullptr;

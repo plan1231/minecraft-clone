@@ -15,9 +15,8 @@ class Game {
     entt::registry registry;
     entt::dispatcher dispatcher;
     std::vector<System*> systems;
-    InputManager& inputManager;
 public:
-    Game(InputManager &inputManager);
+    Game();
     void update(float dt);
 
 };

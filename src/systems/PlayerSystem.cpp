@@ -28,7 +28,7 @@ void PlayerSystem::update(float dt) {
 
     static float timeSinceLastAction = 1.0f;
     timeSinceLastAction += dt;
-    if(timeSinceLastAction < 0.5f) return;
+    if(timeSinceLastAction < 0.25f) return;
 
     if (inputManager.getMouseButton(GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
         placeBlock(camera, transform);

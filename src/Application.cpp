@@ -5,6 +5,9 @@
 #include "Application.h"
 #include <iostream>
 
+#include "ThreadPool.h"
+#include "managers/InputManager.h"
+
 
 Application::Application() {
     // glfw: initialize and configure
@@ -41,8 +44,13 @@ Application::Application() {
         std::cout << "Failed to initialize GLAD" << std::endl;
         exit(1);
     }
-    inputManager = std::make_unique<InputManager>(window);
-    game = std::make_unique<Game>(*inputManager);
+
+    entt::locator<InputManager>::emplace(window);
+
+    ThreadPool &threadPool = entt::locator<ThreadPool>::emplace();
+    threadPool.start();
+
+    game = std::make_unique<Game>();
 
 }
 
@@ -66,6 +74,7 @@ void Application::run() {
         stopRequested |= glfwWindowShouldClose(window);
 
     }
+    entt::locator<ThreadPool>::value().stop();
     glfwDestroyWindow(window);
     glfwTerminate();
 }

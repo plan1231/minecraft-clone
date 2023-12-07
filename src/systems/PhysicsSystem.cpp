@@ -45,8 +45,8 @@ void PhysicsSystem::update(float dt) {
         // apply drag when not accelerating in the xz direction (i.e. player wants to stop)
         if(dyn.acceleration.x == 0.0f && dyn.acceleration.z == 0.0f && xzSpeed > 0.0f) {
             glm::vec2 xzNormalized = xzVel / xzSpeed;
-            dyn.velocity.x -= xzNormalized.x * DRAG_SPEED * dt;
-            dyn.velocity.z -= xzNormalized.y * DRAG_SPEED * dt;
+            dyn.velocity.x -= dyn.velocity.x > 0 ?  std::min(xzNormalized.x * DRAG_DEACCELERATION * dt, dyn.velocity.x) : std::max(xzNormalized.x * DRAG_DEACCELERATION * dt, dyn.velocity.x);
+            dyn.velocity.z -= dyn.velocity.z > 0 ?  std::min(xzNormalized.y * DRAG_DEACCELERATION * dt, dyn.velocity.z) : std::max(xzNormalized.y * DRAG_DEACCELERATION * dt, dyn.velocity.z);
         }
 
 

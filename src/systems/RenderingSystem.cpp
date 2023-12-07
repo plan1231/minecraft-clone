@@ -21,11 +21,14 @@ void RenderingSystem::update(float dt) {
     camera.calculateFrustrum();
     chunkShader->setMatrix4("projectionViewMatrix", camera.pvMatrix);
 
+    // upload updated chunk mesh to the gpu
     registry.view<Model, TempMesh<BlockVertex>, Chunk>().each([](Model &model, TempMesh<BlockVertex> &tmpMesh, Chunk &chunk) {
         if(!chunk.modified)  return;
         model.mesh->bufferData(tmpMesh.vertices.data(), tmpMesh.vertices.size() * sizeof(BlockVertex),
                                      tmpMesh.indices, GL_STATIC_DRAW);
         chunk.modified = false;
+        tmpMesh.indices.clear();
+        tmpMesh.vertices.clear();
     });
 
 
