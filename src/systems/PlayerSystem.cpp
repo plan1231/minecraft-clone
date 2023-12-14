@@ -6,7 +6,7 @@
 #include "events/CameraUpdateEvent.h"
 #include "components/Transform.h"
 #include "components/Camera.h"
-#include "components/Chunk.h"
+#include "world/Chunk.h"
 #include "components/physics/Dynamics.h"
 #include <iostream>
 #include "vector_extensions.h"

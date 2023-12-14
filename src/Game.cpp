@@ -5,18 +5,16 @@
 #include "Game.h"
 #include "systems/RenderingSystem.h"
 #include "systems/PlayerSystem.h"
-#include "systems/ChunkMeshSystem.h"
 #include "systems/PhysicsSystem.h"
-#include "systems/ChunkLoadingSystem.h"
+#include "systems/ChunkSystem.h"
 
 #include "factories.h"
 
-#include "managers/ChunkManager.h"
+#include "world/ChunkManager.h"
 #include "GameEntities.h"
-#include "ThreadPool.h"
 
 Game::Game() {
-    entt::locator<ChunkManager>::emplace(registry);
+    entt::locator<ChunkManager>::emplace(ChunkManager{});
     entt::locator<GameEntities>::emplace(GameEntities {
         .player = makePlayer(registry)
     });
@@ -24,8 +22,7 @@ Game::Game() {
     makeCrosshair(registry);
 
     systems.push_back(new PlayerSystem(registry, dispatcher));
-    systems.push_back(new ChunkLoadingSystem(registry, dispatcher));
-    systems.push_back(new ChunkMeshSystem(registry, dispatcher));
+    systems.push_back(new ChunkSystem(registry, dispatcher));
     systems.push_back(new PhysicsSystem(registry, dispatcher));
     systems.push_back(new RenderingSystem(registry, dispatcher));
 }

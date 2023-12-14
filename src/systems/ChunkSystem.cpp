@@ -1,18 +1,62 @@
 //
-// Created by Phil Lan on 2023-11-05.
+// Created by Phil Lan on 2023-12-14.
 //
 
-#include "ChunkMeshSystem.h"
-
-#include <iostream>
+#include "ChunkSystem.h"
 
 #include "components/Camera.h"
-#include "components/Chunk.h"
-#include "components/Model.h"
-#include "components/TempMesh.h"
 #include "components/Transform.h"
-#include "systems/ChunkLoadingSystem.h"
-// Credit: https://github.com/jdah/minecraft-again/blob/master/src/level/chunk_renderer.cpp
+#include "world/Chunk.h"
+
+void ChunkSystem::update(float dt) {
+    auto playerView = registry.view<Transform, Camera>();
+
+    playerView.each(
+            [&](Transform &transform, Camera &camera) {
+                glm::ivec3 chunkCoords = toChunk(transform.position);
+                for (int y = std::max(chunkCoords.y - LOAD_DISTANCE, 0);
+                     y <= std::min(chunkCoords.y + LOAD_DISTANCE, 5); y++) {
+                    for (int x = chunkCoords.x - LOAD_DISTANCE;
+                         x <= chunkCoords.x + LOAD_DISTANCE; x++) {
+                        for (int z = chunkCoords.z - LOAD_DISTANCE;
+                             z <= chunkCoords.z + LOAD_DISTANCE; z++) {
+                            if (chunkManager.chunks.contains({x, y, z}))
+                                continue;
+                            Chunk &c = chunkManager.loadChunk({x, y, z});
+                                // todo: figure out why terrainGen isn't thread-safe
+//                            threadPool.queueJob([&]() {
+                                terrainGen.generateTerrain(c, {x, y, z});
+//                            });
+                        }
+                    }
+                }
+            });
+//    threadPool.waitForCompletion();
+
+    playerView.each([&](Transform &playerTransform, auto) {
+        glm::ivec3 pChunkCoords = toChunk(playerTransform.position);
+        for (auto &[chunkCoords, chunk]: chunkManager.chunks) {
+            if (!chunk.modified)
+                continue;
+            threadPool.queueJob([&]() {
+                for (int y = 1; y <= CHUNK_SIZE; y++) {
+                    for (int x = 1; x <= CHUNK_SIZE; x++) {
+                        for (int z = 1; z <= CHUNK_SIZE; z++) {
+                            BlockType blockType = chunk.getBlock({x, y, z});
+                            if (blockType == BlockType::AIR)
+                                continue;
+                            emitBlock(chunk.tempMesh, chunk, {x, y, z});
+                        }
+                    }
+                }
+            });
+        }
+    });
+    threadPool.waitForCompletion();
+}
+
+// Credit:
+// https://github.com/jdah/minecraft-again/blob/master/src/level/chunk_renderer.cpp
 /*  3D CUBE
  *  1-------2
  *  |5------+6
@@ -62,87 +106,68 @@ static const uint UNIQUE_INDICES[] = {0, 1, 2, 5};
 static const uint FACE_INDICES[] = {0, 1, 2, 0, 2, 3};
 
 static const uint CUBE_INDICES[] = {
-    4, 7, 6, 4, 6, 5, // (south (+z))
-    3, 0, 1, 3, 1, 2, // (north (-z))
-    7, 3, 2, 7, 2, 6, // (east  (+x))
-    0, 4, 5, 0, 5, 1, // (west  (-x))
-    2, 1, 5, 2, 5, 6, // (up    (+y))
-    0, 3, 7, 0, 7, 4 // (down  (-y))
+        4, 7, 6, 4, 6, 5, // (south (+z))
+        3, 0, 1, 3, 1, 2, // (north (-z))
+        7, 3, 2, 7, 2, 6, // (east  (+x))
+        0, 4, 5, 0, 5, 1, // (west  (-x))
+        2, 1, 5, 2, 5, 6, // (up    (+y))
+        0, 3, 7, 0, 7, 4  // (down  (-y))
 };
 
 static const glm::ivec3 CUBE_VERTICES[] = {
-    glm::ivec3(0, 0, 0),
-    glm::ivec3(0, 1, 0),
-    glm::ivec3(1, 1, 0),
-    glm::ivec3(1, 0, 0),
-    glm::ivec3(0, 0, 1),
-    glm::ivec3(0, 1, 1),
-    glm::ivec3(1, 1, 1),
-    glm::ivec3(1, 0, 1)
-};
+        glm::ivec3(0, 0, 0), glm::ivec3(0, 1, 0), glm::ivec3(1, 1, 0),
+        glm::ivec3(1, 0, 0), glm::ivec3(0, 0, 1), glm::ivec3(0, 1, 1),
+        glm::ivec3(1, 1, 1), glm::ivec3(1, 0, 1)};
 
-
-void ChunkMeshSystem::update(float dt) {
-    auto playerView = registry.view<Transform, Camera>();
-    playerView.each([&](Transform&playerTransform, auto) {
-        glm::ivec3 pChunkCoords = toChunk(playerTransform.position);
-        registry.view<Chunk, Transform, TempMesh<BlockVertex>>().each(
-            [&](Chunk &chunk, Transform &transform, TempMesh<BlockVertex> &tmpMesh) {
-                if (!chunk.modified) return;
-                threadPool.queueJob([&]() {
-                    for (int y = 1; y <= CHUNK_SIZE; y++) {
-                        for (int x = 1; x <= CHUNK_SIZE; x++) {
-                            for (int z = 1; z <= CHUNK_SIZE; z++) {
-                                BlockType blockType = chunk.getBlock({x, y, z});
-                                if (blockType == BlockType::AIR) continue;
-                                emitBlock(tmpMesh, chunk, {x, y, z});
-                            }
-                        }
-                    }
-                });
-            });
-    });
-    threadPool.waitForCompletion();
-}
-
-void ChunkMeshSystem::emitBlock(
-    TempMesh<BlockVertex> &tmpMesh,
-    Chunk &chunk,
-    const glm::ivec3 &localCoords) {
+void ChunkSystem::emitBlock(TempMesh<BlockVertex> &tmpMesh, Chunk &chunk,
+                            const glm::ivec3 &localCoords) {
     BlockType currBlockType = chunk.getBlock(localCoords);
 
     // +z face
-    if (BlockTypeInfo::get(chunk.getBlock({localCoords.x, localCoords.y, localCoords.z + 1})).isTransparent) {
+    if (BlockTypeInfo::get(
+            chunk.getBlock({localCoords.x, localCoords.y, localCoords.z + 1}))
+            .isTransparent) {
         emitFace(tmpMesh, chunk, localCoords, currBlockType, Face::SOUTH);
     }
 
     // -z face
-    if (BlockTypeInfo::get(chunk.getBlock({localCoords.x, localCoords.y, localCoords.z - 1})).isTransparent) {
+    if (BlockTypeInfo::get(
+            chunk.getBlock({localCoords.x, localCoords.y, localCoords.z - 1}))
+            .isTransparent) {
         emitFace(tmpMesh, chunk, localCoords, currBlockType, Face::NORTH);
     }
 
     // +x face
-    if (BlockTypeInfo::get(chunk.getBlock({localCoords.x + 1, localCoords.y, localCoords.z})).isTransparent) {
+    if (BlockTypeInfo::get(
+            chunk.getBlock({localCoords.x + 1, localCoords.y, localCoords.z}))
+            .isTransparent) {
         emitFace(tmpMesh, chunk, localCoords, currBlockType, Face::EAST);
     }
 
     // -x face
-    if (BlockTypeInfo::get(chunk.getBlock({localCoords.x - 1, localCoords.y, localCoords.z})).isTransparent) {
+    if (BlockTypeInfo::get(
+            chunk.getBlock({localCoords.x - 1, localCoords.y, localCoords.z}))
+            .isTransparent) {
         emitFace(tmpMesh, chunk, localCoords, currBlockType, Face::WEST);
     }
 
     // +y face
-    if (BlockTypeInfo::get(chunk.getBlock({localCoords.x, localCoords.y + 1, localCoords.z})).isTransparent) {
+    if (BlockTypeInfo::get(
+            chunk.getBlock({localCoords.x, localCoords.y + 1, localCoords.z}))
+            .isTransparent) {
         emitFace(tmpMesh, chunk, localCoords, currBlockType, Face::UP);
     }
 
     // -y face
-    if (BlockTypeInfo::get(chunk.getBlock({localCoords.x, localCoords.y - 1, localCoords.z})).isTransparent) {
+    if (BlockTypeInfo::get(
+            chunk.getBlock({localCoords.x, localCoords.y - 1, localCoords.z}))
+            .isTransparent) {
         emitFace(tmpMesh, chunk, localCoords, currBlockType, Face::DOWN);
     }
 }
 
-std::array<int, 4> ChunkMeshSystem::getFaceAo(const Chunk &chunk, const BCoords &coords, Face face) {
+std::array<int, 4> ChunkSystem::getFaceAo(const Chunk &chunk,
+                                          const BCoords &coords, Face face) {
     const int x = coords.x, y = coords.y, z = coords.z;
     int a, b, c, d, e, f, g, h;
 
@@ -212,34 +237,33 @@ std::array<int, 4> ChunkMeshSystem::getFaceAo(const Chunk &chunk, const BCoords 
     return std::array<int, 4>{d + f + g, g + h + e, b + c + e, d + a + b};
 }
 
-void ChunkMeshSystem::emitFace(
-    TempMesh<BlockVertex> &tmpMesh,
-    Chunk &chunk,
-    const glm::ivec3 &localCoords,
-    BlockType blockType,
-    Face face) {
+void ChunkSystem::emitFace(TempMesh<BlockVertex> &tmpMesh, Chunk &chunk,
+                           const glm::ivec3 &localCoords, BlockType blockType,
+                           Face face) {
     unsigned int offset = tmpMesh.vertices.size();
     auto faceInt = static_cast<unsigned int>(face);
     std::array<int, 4> aoVals = getFaceAo(chunk, localCoords, face);
-    // printf("ao vals %d %d %d %d\n", aoVals[0], aoVals[1], aoVals[2], aoVals[3]);
     for (unsigned int corner = 0; corner < 4; corner++) {
         // 4 vertices per face
-        const glm::ivec3&cubeVertex = CUBE_VERTICES[CUBE_INDICES[6 * faceInt + UNIQUE_INDICES[corner]]];
-        const glm::vec2&uv = BlockTypeInfo::get(blockType).textCoords(face, corner);
-        const BlockVertex v{
-            // subtract 1 to account for 1-block thick border of adjacent chunk blocks
-            .x = localCoords.x + cubeVertex.x - 1,
-            .y = localCoords.y + cubeVertex.y - 1,
-            .z = localCoords.z + cubeVertex.z - 1,
-            .u = uv.x,
-            .v = uv.y,
-            .aoLvl = aoVals[corner]
-        };
+        const glm::ivec3 &cubeVertex =
+                CUBE_VERTICES[CUBE_INDICES[6 * faceInt + UNIQUE_INDICES[corner]]];
+        const glm::vec2 &uv =
+                BlockTypeInfo::get(blockType).textCoords(face, corner);
+        const BlockVertex v{// subtract 1 to account for 1-block thick border of
+                // adjacent chunk blocks
+                .x = localCoords.x + cubeVertex.x - 1,
+                .y = localCoords.y + cubeVertex.y - 1,
+                .z = localCoords.z + cubeVertex.z - 1,
+                .u = uv.x,
+                .v = uv.y,
+                .aoLvl = aoVals[corner]};
         tmpMesh.vertices.push_back(v);
     }
-    tmpMesh.indices.insert(tmpMesh.indices.end(), {offset, offset + 1, offset + 2, offset, offset + 2, offset + 3});
+    tmpMesh.indices.insert(
+            tmpMesh.indices.end(),
+            {offset, offset + 1, offset + 2, offset, offset + 2, offset + 3});
 }
 
-ChunkMeshSystem::ChunkMeshSystem(entt::registry &registry, entt::dispatcher &dispatcher)
-    : System(registry, dispatcher) {
+ChunkSystem::ChunkSystem(entt::registry &registry, entt::dispatcher &dispatcher) : System(registry, dispatcher) {
+
 }

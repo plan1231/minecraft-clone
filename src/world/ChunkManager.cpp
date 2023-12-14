@@ -4,10 +4,9 @@
 
 #include "ChunkManager.h"
 
-#include "factories.h"
-#include "components/Model.h"
-#include "components/Transform.h"
-#include "components/Chunk.h"
+#include "../factories.h"
+#include "../components/Model.h"
+#include "../components/Transform.h"
 
 BlockType ChunkManager::getBlock(const glm::ivec3 &coords) {
     if (coords.y >= MAX_Y) return BlockType::AIR;
@@ -16,10 +15,9 @@ BlockType ChunkManager::getBlock(const glm::ivec3 &coords) {
     if (it == chunks.end()) {
         return BlockType::AIR;
     }
-    entt::entity entity = it->second;
-    Chunk &component = registry.get<Chunk>(entity);
+    Chunk &chunk = it->second;
     glm::ivec3 localCoords = toLocal(coords);
-    return component.getBlock(localCoords);
+    return chunk.getBlock(localCoords);
 }
 
 void ChunkManager::setBlock(const glm::ivec3 &coords, BlockType blockType) {
@@ -29,9 +27,8 @@ void ChunkManager::setBlock(const glm::ivec3 &coords, BlockType blockType) {
     if (it == chunks.end()) {
         return;
     }
-    entt::entity entity = it->second;
-    Chunk &component = registry.get<Chunk>(entity);
-    component.setBlock(localCoords, blockType);
+    Chunk &chunk = it->second;
+    chunk.setBlock(localCoords, blockType);
 
     // also update the neighboring chunks' record of this location
     AdjacentChunks adjChunks = getAdjacent(chunkCoords);
@@ -59,13 +56,7 @@ void ChunkManager::setBlock(const glm::ivec3 &coords, BlockType blockType) {
 
 }
 
-::Chunk& ChunkManager::loadChunk(const glm::ivec3 &chunkCoords, BlockType b) {
-    entt::entity chunk = makeChunk(registry, chunkCoords);
-    chunks[chunkCoords] = chunk;
-    return registry.get<Chunk>(chunk);
-}
-
-ChunkManager::ChunkManager(entt::registry &registry): registry(registry) {
+ChunkManager::ChunkManager() {
 }
 
 AdjacentChunks ChunkManager::getAdjacent(const glm::ivec3 &chunkCoords) {
@@ -86,5 +77,25 @@ Chunk* ChunkManager::getChunk(const glm::ivec3 &chunkCoords) {
     if (it == chunks.end()) {
         return nullptr;
     }
-    return &registry.get<Chunk>(it->second);
+    return &it->second;
+}
+
+Chunk& ChunkManager::loadChunk(const glm::ivec3 &chunkCoords) {
+    // todo: Make resource loading more sane
+    static TexturePtr chunkTexture = std::make_shared<Texture>(ASSETS_PATH"/textures/blocks.png");
+
+    MeshPtr meshPtr = std::make_shared<Mesh>(VertexAttributes{
+            VertexAttribute{3, GL_FLOAT, GL_FALSE, 5 * sizeof(float) + 1 * sizeof(unsigned int), 0},
+            VertexAttribute{
+                    2, GL_FLOAT, GL_FALSE, 5 * sizeof(float) + 1 * sizeof(unsigned int),
+                    (void *)(3 * sizeof(float))
+            },
+            VertexAttribute{1, GL_FLOAT, GL_FALSE, 5 * sizeof(float) + 1 * sizeof(unsigned int),
+                            (void *)(5 * sizeof(float))
+            }
+    }, GL_TRIANGLES);
+
+
+    chunks.emplace(chunkCoords, Chunk{ .model{ meshPtr, chunkTexture}});
+    return chunks[chunkCoords];
 }

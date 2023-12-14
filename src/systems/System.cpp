@@ -13,3 +13,6 @@ System::System(entt::registry &registry, entt::dispatcher &dispatcher) :
 {
 
 }
+
+System::~System() {
+}

@@ -8,12 +8,20 @@
 #include <memory>
 #include <array>
 #include "BlockType.h"
+#include "components/Model.h"
+#include "components/TempMesh.h"
 #include "vector_extensions.h"
 
 constexpr int CHUNK_SIZE = 32;
 constexpr int CHUNK_ACTUAL_SIZE = CHUNK_SIZE + 2;
 constexpr int MAX_Y = 256;
 using BlockArray = std::array<BlockType, CHUNK_ACTUAL_SIZE * CHUNK_ACTUAL_SIZE * CHUNK_ACTUAL_SIZE>;
+
+struct BlockVertex {
+    int x, y, z;
+    float u, v;
+    int aoLvl;
+};
 
 // Block coords and Block Local coords
 // Guards against passing the wrong coord type to a function
@@ -22,11 +30,11 @@ using BLocalCoords = glm::ivec3;
 
 struct Chunk {
     bool modified = true;
-
+    Model model;
+    TempMesh<BlockVertex> tempMesh;
+    
     // storage order: y - x - z
-    std::unique_ptr<BlockArray> blockTypes;
-
-    Chunk(BlockType b);
+    std::unique_ptr<BlockArray> blockTypes = std::make_unique<BlockArray>();;
 
     BlockType getBlock(const BLocalCoords &localCoords) const;
     void setBlock(const BLocalCoords &localCoords, BlockType blockType);
@@ -45,10 +53,5 @@ constexpr glm::ivec3 toGlobal(const glm::ivec3 &localCoords, const glm::ivec3 &c
     return localCoords - glm::ivec3(1) + chunkCoords * CHUNK_SIZE;
 }
 
-struct BlockVertex {
-    int x, y, z;
-    float u, v;
-    int aoLvl;
-};
 
 #endif //MINECRAFT_CLONE_CHUNKCOMPONENT_H

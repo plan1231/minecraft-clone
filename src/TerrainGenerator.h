@@ -6,7 +6,7 @@
 #define TERRAINGENERATOR_H
 
 #include "PerlinNoise.h"
-#include "components/Chunk.h"
+#include "world/Chunk.h"
 
 class TerrainGenerator {
 public:

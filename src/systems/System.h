@@ -7,9 +7,9 @@
 
 #include <entt/entt.hpp>
 
-#include "ThreadPool.h"
+#include "threading/ThreadPool.h"
 #include "managers/InputManager.h"
-#include "managers/ChunkManager.h"
+#include "world/ChunkManager.h"
 
 class System {
 protected:
@@ -21,6 +21,7 @@ protected:
 public:
     System(entt::registry &registry, entt::dispatcher &dispatcher);
     virtual void update(float dt) = 0;
+    virtual ~System();
 };
 
 

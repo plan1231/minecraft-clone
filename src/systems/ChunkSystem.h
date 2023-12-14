@@ -1,29 +1,23 @@
 //
-// Created by Phil Lan on 2023-11-05.
+// Created by Phil Lan on 2023-12-14.
 //
 
-#ifndef MINECRAFT_CLONE_CHUNKMESHSYSTEM_H
-#define MINECRAFT_CLONE_CHUNKMESHSYSTEM_H
-
+#pragma once
 #include "System.h"
-#include <vector>
-#include <array>
-#include <glm/glm.hpp>
-#include "BlockType.h"
-#include "components/Chunk.h"
+#include "TerrainGenerator.h"
 #include "components/TempMesh.h"
+#include "world/Chunk.h"
+constexpr int LOAD_DISTANCE = 5;
 
-class ChunkMeshSystem : public System {
+class ChunkSystem: public System {
 public:
     void update(float dt) override;
-    ChunkMeshSystem(entt::registry &registry, entt::dispatcher &dispatcher);
+    ChunkSystem(entt::registry &registry, entt::dispatcher &dispatcher);
 private:
+    TerrainGenerator terrainGen;
 
 
     static std::array<int, 4> getFaceAo(const Chunk &chunk, const BCoords &coords, Face face);
     static void emitFace(TempMesh<BlockVertex> &tmpMesh, Chunk &chunk, const glm::ivec3 &localCoords, BlockType blockType, Face face);
     static void emitBlock(TempMesh<BlockVertex> &tmpMesh, Chunk &chunk, const glm::ivec3 &localCoords);
 };
-
-
-#endif //MINECRAFT_CLONE_CHUNKMESHSYSTEM_H
