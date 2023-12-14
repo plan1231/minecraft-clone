@@ -13,25 +13,25 @@ void ChunkSystem::update(float dt) {
 
     playerView.each(
             [&](Transform &transform, Camera &camera) {
-                glm::ivec3 chunkCoords = toChunk(transform.position);
-                for (int y = std::max(chunkCoords.y - LOAD_DISTANCE, 0);
-                     y <= std::min(chunkCoords.y + LOAD_DISTANCE, 5); y++) {
-                    for (int x = chunkCoords.x - LOAD_DISTANCE;
-                         x <= chunkCoords.x + LOAD_DISTANCE; x++) {
-                        for (int z = chunkCoords.z - LOAD_DISTANCE;
-                             z <= chunkCoords.z + LOAD_DISTANCE; z++) {
+                glm::ivec3 playerChunkCoords = toChunk(transform.position);
+                for (int y = std::max(playerChunkCoords.y - LOAD_DISTANCE, 0);
+                     y <= std::min(playerChunkCoords.y + LOAD_DISTANCE, 5); y++) {
+                    for (int x = playerChunkCoords.x - LOAD_DISTANCE;
+                         x <= playerChunkCoords.x + LOAD_DISTANCE; x++) {
+                        for (int z = playerChunkCoords.z - LOAD_DISTANCE;
+                             z <= playerChunkCoords.z + LOAD_DISTANCE; z++) {
+                            glm::ivec3 currChunkCoords{x, y, z};
                             if (chunkManager.chunks.contains({x, y, z}))
                                 continue;
                             Chunk &c = chunkManager.loadChunk({x, y, z});
-                                // todo: figure out why terrainGen isn't thread-safe
-//                            threadPool.queueJob([&]() {
-                                terrainGen.generateTerrain(c, {x, y, z});
-//                            });
+                            threadPool.queueJob([this, &c, currChunkCoords]() {
+                                terrainGen.generateTerrain(c, currChunkCoords);
+                            });
                         }
                     }
                 }
             });
-//    threadPool.waitForCompletion();
+    threadPool.waitForCompletion();
 
     playerView.each([&](Transform &playerTransform, auto) {
         glm::ivec3 pChunkCoords = toChunk(playerTransform.position);

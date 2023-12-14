@@ -81,8 +81,8 @@ void PhysicsSystem::update(float dt) {
                         return std::get<0>(lhs) < std::get<0>(rhs);
                     });
                 auto [cTime, normal, loc] = *it;
-                printf("got collision with block %d %d %d  normal %f %f %f, player loc %f %f %f\n", loc.x, loc.y, loc.z,
-                       normal.x, normal.y, normal.z, transform.position.x, transform.position.y, transform.position.z);
+//                printf("got collision with block %d %d %d  normal %f %f %f, player loc %f %f %f\n", loc.x, loc.y, loc.z,
+//                       normal.x, normal.y, normal.z, transform.position.x, transform.position.y, transform.position.z);
 
                 if (normal.x) {
                     dyn.velocity.x = 0;

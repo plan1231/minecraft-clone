@@ -41,7 +41,6 @@ public:
 
     AdjacentChunks getAdjacent(const glm::ivec3 &chunkCoords);
 private:
-    PerlinNoise perlinNoise;
     Chunk *getChunk(const glm::ivec3 &chunkCoords);
 };
 
