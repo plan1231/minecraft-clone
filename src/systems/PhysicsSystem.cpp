@@ -59,19 +59,25 @@ void PhysicsSystem::update(float dt) {
                 int speedZ = ceil(abs(dyn.velocity.z));
 
                 for (int i = 0; i < 3; i++) {
+                    // adjusted velocity
                     glm::vec3 adjVel = dyn.velocity * dt;
                     std::vector<std::tuple<float, glm::vec3, glm::ivec3>> collisions;
                     std::mutex vecLock;
                     for (int y = minInt.y - 4 - speedY; y <= maxInt.y + 4 + speedY; y++) {
                         threadPool.queueJob([this, y, &minInt, &maxInt, &speedZ, &speedX, &aabb, &adjVel, &collisions, &vecLock]() {
+                            glm::vec3 planeNormal =  glm::normalize(adjVel);
+                            Plane p {.normal = planeNormal, .distance = -glm::dot(aabb.center(), planeNormal)};
                             std::vector<std::tuple<float, glm::vec3, glm::ivec3>> perThreadCollisions;
                             for (int x = minInt.x - 4 - speedX; x <= maxInt.x + 4 + speedX; x++) {
                                 for (int z = minInt.z - 4 - speedZ; z <= maxInt.z + 4 + speedZ; z++) {
-                                    if (chunkManager.getBlock({x, y, z}) == BlockType::AIR) continue;
                                     AABB blkCollider{
                                             .min = {x, y, z},
                                             .max = {x + 1, y + 1, z + 1}
                                     };
+                                    if(classify(blkCollider, p) < 0.0f) continue;
+
+                                    if (chunkManager.getBlock({x, y, z}) == BlockType::AIR) continue;
+
 
                                     auto [collided, cTime, normal] = collide(blkCollider, aabb, adjVel);
                                     if (!collided) continue;

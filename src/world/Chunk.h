@@ -34,7 +34,7 @@ struct Chunk {
     TempMesh<BlockVertex> tempMesh;
     
     // storage order: y - x - z
-    std::unique_ptr<BlockArray> blockTypes = std::make_unique<BlockArray>();;
+    BlockArray blockTypes;
 
     BlockType getBlock(const BLocalCoords &localCoords) const;
     void setBlock(const BLocalCoords &localCoords, BlockType blockType);
