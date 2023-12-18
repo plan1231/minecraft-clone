@@ -23,7 +23,7 @@ void TerrainGenerator::generateTerrain(Chunk& cc, const glm::ivec3& chunkCoords)
         for(int x = 0; x < CHUNK_ACTUAL_SIZE; x++) {
             for(int z = 0; z < CHUNK_ACTUAL_SIZE; z++) {
                 int globalY = (y - 1) + chunkCoords.y * CHUNK_SIZE;
-                (*cc.blockTypes)[y * CHUNK_ACTUAL_SIZE * CHUNK_ACTUAL_SIZE + x * CHUNK_ACTUAL_SIZE + z] = globalY <= heightMap[x * CHUNK_ACTUAL_SIZE + z] ? BlockType::DIRT : BlockType::AIR;
+                cc.blockTypes[y * CHUNK_ACTUAL_SIZE * CHUNK_ACTUAL_SIZE + x * CHUNK_ACTUAL_SIZE + z] = globalY <= heightMap[x * CHUNK_ACTUAL_SIZE + z] ? BlockType::DIRT : BlockType::AIR;
             }
         }
     }
