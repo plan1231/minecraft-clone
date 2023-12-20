@@ -14,11 +14,11 @@ namespace std {
     template<>
     struct hash<glm::ivec3> {
         size_t operator()(const glm::ivec3 &vec) const {
-            size_t h1 = std::hash<int>()(vec.x);
-            size_t h2 = std::hash<int>()(vec.y);
-            size_t h3 = std::hash<int>()(vec.z);
+            size_t x = std::hash<int>()(vec.x);
+            size_t y = std::hash<int>()(vec.y);
+            size_t z = std::hash<int>()(vec.z);
 
-            return h1 ^ (h2 << 1) ^ (h3 << 2);
+            return x ^ (y << 16) ^ (y >> (sizeof(y) * 8 - 16)) ^ (z << 24) ^ (z >> (sizeof(z) * 8 - 24));
         }
     };
 }
